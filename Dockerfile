@@ -46,5 +46,5 @@ ENV DATABASE_URL="file:../data/app.db?connection_limit=1&socket_timeout=15"
 EXPOSE 49632
 VOLUME /app/data
 
-# 启动：同步表结构 → 开启 WAL → 启动 standalone 服务
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node scripts/wal.cjs && node server.js"]
+# 启动：同步表结构（直接调用 prisma CLI 入口，绕过 npx）→ 开启 WAL → 启动 standalone 服务
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js db push --skip-generate && node scripts/wal.cjs && node server.js"]
