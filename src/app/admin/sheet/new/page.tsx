@@ -86,6 +86,10 @@ export default function NewSheetPage() {
       setError("请填写供货日期和截止时间");
       return;
     }
+    if (!title.trim()) {
+      setError("请填写标题");
+      return;
+    }
     setSaving(true);
     setError("");
     const res = await fetch("/api/sheets", {
@@ -126,12 +130,12 @@ export default function NewSheetPage() {
             </div>
           </label>
           <label className="text-sm">
-            <span className="text-gray-500">标题（可选）</span>
+            <span className="text-gray-500">标题</span>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="自动识别，可修改"
+              placeholder="如：龙元花卉（上传 Excel 自动识别）"
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </label>
@@ -148,10 +152,21 @@ export default function NewSheetPage() {
       </section>
 
       <section className="mt-4 rounded-xl border-2 border-dashed border-gray-300 bg-white p-5">
-        <h2 className="text-sm font-medium text-gray-700">上传今日商品表（Excel）</h2>
-        <p className="mt-1 text-xs text-gray-400">
-          按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 = 原始库存，可手动调整
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-medium text-gray-700">上传今日商品表（Excel）</h2>
+            <p className="mt-1 text-xs text-gray-400">
+              按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 = 原始库存，可手动调整
+            </p>
+          </div>
+          <a
+            href="/muban.xlsx"
+            download="供货模板.xlsx"
+            className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-600 hover:bg-gray-50"
+          >
+            ⬇ 下载模板
+          </a>
+        </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <input
             ref={fileRef}

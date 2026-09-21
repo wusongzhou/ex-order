@@ -29,6 +29,10 @@ export async function POST(req: NextRequest) {
   if (!date || !deadline || !Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "日期、截止时间和至少一个商品为必填" }, { status: 400 });
   }
+  const titleTrim = String(title ?? "").trim();
+  if (!titleTrim) {
+    return NextResponse.json({ error: "请填写标题" }, { status: 400 });
+  }
   const deadlineDate = new Date(deadline);
   if (isNaN(deadlineDate.getTime())) {
     return NextResponse.json({ error: "截止时间无效" }, { status: 400 });
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
   const sheet = await prisma.supplySheet.create({
     data: {
       date,
-      title: String(title ?? "").trim(),
+      title: titleTrim,
       deadline: deadlineDate,
       items: { create: cleaned.map((it, i) => ({ ...it, sort: i })) },
     },

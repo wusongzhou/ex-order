@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import DateTimePicker from "@/components/ui/DateTimePicker";
 import Modal from "@/components/Modal";
 
 type ModalType = "close" | "reopen" | "delete" | null;
@@ -30,20 +31,70 @@ const META: Record<
   },
 };
 
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
 export default function SheetActions({
   id,
   status,
   deadlinePassed,
+  title: srcTitle,
 }: {
   id: number;
   status: string;
   deadlinePassed: boolean;
+  title: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [modal, setModal] = useState<ModalType>(null);
   const [err, setErr] = useState("");
   const open = status === "open" && !deadlinePassed;
+
+  // 复制弹窗表单
+  const [copyModal, setCopyModal] = useState(false);
+  const [copyDate, setCopyDate] = useState("");
+  const [copyTitle, setCopyTitle] = useState("");
+  const [copyDeadline, setCopyDeadline] = useState("");
+
+  const openCopy = () => {
+    const d = new Date();
+    const today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const time = d.getHours() < 20 ? "20:00" : "23:59";
+    setCopyDate(today);
+    setCopyTitle(srcTitle);
+    setCopyDeadline(`${today}T${time}`);
+    setErr("");
+    setCopyModal(true);
+  };
+
+  // 复制供货单：商品原样带过去，库存清零，不复制客户订单
+  const doCopy = async () => {
+    if (!copyTitle.trim()) {
+      setErr("请填写标题");
+      return;
+    }
+    if (!copyDate || !copyDeadline) {
+      setErr("请填写供货日期和截止时间");
+      return;
+    }
+    setCopying(true);
+    setErr("");
+    const res = await fetch(`/api/sheets/${id}/duplicate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: copyDate, title: copyTitle.trim(), deadline: copyDeadline }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      router.push(`/admin/sheet/${data.id}`);
+    } else {
+      setCopying(false);
+      setErr(data.error || "复制失败，请重试");
+    }
+  };
 
   const doAction = async () => {
     if (!modal) return;
@@ -103,6 +154,14 @@ export default function SheetActions({
         </button>
       )}
       <button
+        onClick={openCopy}
+        disabled={copying}
+        title="复制全部商品到新供货单（库存清零，需重新填当日数量）"
+        className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+      >
+        {copying ? "复制中..." : "复制为新供货单"}
+      </button>
+      <button
         onClick={() => setModal("delete")}
         disabled={busy}
         className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
@@ -135,7 +194,60 @@ export default function SheetActions({
         }
       >
         <p>{meta?.text}</p>
-        {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
+        {err && !copyModal && <p className="mt-2 text-sm text-red-600">{err}</p>}
+      </Modal>
+
+      {/* 复制供货单弹窗 */}
+      <Modal
+        open={copyModal}
+        title="复制为新供货单"
+        onClose={() => !copying && setCopyModal(false)}
+        footer={
+          <>
+            <button
+              onClick={() => setCopyModal(false)}
+              disabled={copying}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              取消
+            </button>
+            <button
+              onClick={doCopy}
+              disabled={copying}
+              className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
+            >
+              {copying ? "复制中..." : "确认复制"}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500">
+            将复制全部商品（含图片与价格），库存清零；客户订单与链接不复制。
+          </p>
+          <label className="block text-sm">
+            <span className="text-gray-600">供货日期</span>
+            <div className="mt-1">
+              <DateTimePicker value={copyDate} onChange={setCopyDate} />
+            </div>
+          </label>
+          <label className="block text-sm">
+            <span className="text-gray-600">标题</span>
+            <input
+              value={copyTitle}
+              onChange={(e) => setCopyTitle(e.target.value)}
+              placeholder="如：龙元花卉"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="text-gray-600">截止时间</span>
+            <div className="mt-1">
+              <DateTimePicker value={copyDeadline} onChange={setCopyDeadline} withTime />
+            </div>
+          </label>
+          {err && <p className="text-sm text-red-600">{err}</p>}
+        </div>
       </Modal>
     </div>
   );

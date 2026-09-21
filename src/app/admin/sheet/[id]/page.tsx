@@ -67,6 +67,7 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
         id={sheet.id}
         status={sheet.status}
         deadlinePassed={new Date(sheet.deadline).getTime() <= Date.now()}
+        title={sheet.title}
       />
 
       <section className="mt-8">
