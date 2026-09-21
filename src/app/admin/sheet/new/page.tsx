@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import DateTimePicker from "@/components/ui/DateTimePicker";
 
 type ItemRow = {
   name: string;
@@ -32,6 +33,7 @@ export default function NewSheetPage() {
 
   // 上传 Excel
   const fileRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadInfo, setUploadInfo] = useState("");
   const [uploadInfoError, setUploadInfoError] = useState(false);
@@ -119,12 +121,9 @@ export default function NewSheetPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <label className="text-sm">
             <span className="text-gray-500">供货日期</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
+            <div className="mt-1">
+              <DateTimePicker value={date} onChange={setDate} />
+            </div>
           </label>
           <label className="text-sm">
             <span className="text-gray-500">标题（可选）</span>
@@ -138,12 +137,9 @@ export default function NewSheetPage() {
           </label>
           <label className="text-sm">
             <span className="text-gray-500">截止时间</span>
-            <input
-              type="datetime-local"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
+            <div className="mt-1">
+              <DateTimePicker value={deadline} onChange={setDeadline} withTime />
+            </div>
           </label>
         </div>
         <p className="mt-3 text-xs text-gray-400">
@@ -156,13 +152,26 @@ export default function NewSheetPage() {
         <p className="mt-1 text-xs text-gray-400">
           按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 = 原始库存，可手动调整
         </p>
-        <div className="mt-4 flex flex-wrap items-end gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <input
             ref={fileRef}
             type="file"
             accept=".xlsx,.xls"
-            className="text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:text-gray-700 hover:file:bg-gray-200"
+            className="hidden"
+            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
           />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            选择文件
+          </button>
+          {fileName ? (
+            <span className="max-w-48 truncate text-sm text-gray-600">{fileName}</span>
+          ) : (
+            <span className="text-sm text-gray-400">未选择文件</span>
+          )}
           <button
             onClick={upload}
             disabled={uploading}

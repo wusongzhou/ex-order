@@ -13,6 +13,12 @@ services:
       - SESSION_SECRET=please-change-me-to-a-long-random-string
     volumes:
       - ex-order-data:/app/data
+    # 日志轮转：低配服务器防磁盘被日志吃满
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
 volumes:

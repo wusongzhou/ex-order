@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
 import OrderLinks from "@/components/OrderLinks";
+import RefreshButton from "@/components/RefreshButton";
 import SheetActions from "@/components/SheetActions";
 import StockCell from "@/components/StockCell";
 import { isAdmin } from "@/lib/auth";
@@ -55,7 +56,10 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
         <h1 className="text-xl font-semibold">
           {sheet.date} 供货单{sheet.title ? ` · ${sheet.title}` : ""}
         </h1>
-        <span className={`rounded-full px-3 py-1 text-xs ${status.cls}`}>{status.label}</span>
+        <span className="flex items-center gap-3">
+          <RefreshButton />
+          <span className={`rounded-full px-3 py-1 text-xs ${status.cls}`}>{status.label}</span>
+        </span>
       </div>
       <p className="mt-1 text-sm text-gray-500">截止时间：{fmtDateTime(sheet.deadline)}</p>
 

@@ -1,6 +1,32 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import OrderForm from "@/components/OrderForm";
 import { prisma } from "@/lib/db";
+
+/** 分享卡片 meta：微信/浏览器里发链接时显示标题与描述，而不是裸 URL */
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const { token } = await params;
+  const order = await prisma.order.findUnique({
+    where: { token },
+    select: {
+      customerName: true,
+      sheet: { select: { date: true, title: true, deadline: true, status: true } },
+    },
+  });
+  if (!order) {
+    return { title: "订购单", description: "链接无效或已失效" };
+  }
+  const expired = order.sheet.status !== "open" || order.sheet.deadline.getTime() <= Date.now();
+  const title = `${order.sheet.title || "供货订购"} · ${order.sheet.date}`;
+  const description = expired
+    ? "本次订购已截止"
+    : `${order.customerName}，点击填写您今日需要的订购数量`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+  };
+}
 
 export default async function OrderPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;

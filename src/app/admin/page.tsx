@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
+import HistoryFilter from "@/components/HistoryFilter";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sheetStatus } from "@/lib/sheetStatus";
@@ -41,37 +42,7 @@ export default async function AdminHome({
       </div>
 
       {/* 历史查询筛选 */}
-      <form className="mt-4 flex flex-wrap gap-2" action="/admin">
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="搜索标题或供货日期，如：2026-09-22"
-          className="min-w-56 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
-        />
-        <select
-          name="status"
-          defaultValue={status}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-        >
-          <option value="all">全部状态</option>
-          <option value="open">进行中</option>
-          <option value="ended">已结束（截止/关闭）</option>
-        </select>
-        <button
-          type="submit"
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-        >
-          筛选
-        </button>
-        {(q || status !== "all") && (
-          <Link
-            href="/admin"
-            className="rounded-lg px-4 py-2 text-sm text-gray-500 hover:text-gray-900"
-          >
-            重置
-          </Link>
-        )}
-      </form>
+      <HistoryFilter q={q} status={status} />
 
       {sheets.length === 0 ? (
         <p className="mt-10 text-center text-sm text-gray-500">
