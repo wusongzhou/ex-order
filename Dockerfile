@@ -29,11 +29,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Prisma：schema + 引擎 + CLI（启动时 db push 用）
+# Prisma CLI 有传递依赖（effect 等），这里直接带完整 node_modules 保证 db push 可用
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules ./node_modules
 
 # WAL 初始化脚本
 COPY scripts/wal.cjs ./scripts/wal.cjs
