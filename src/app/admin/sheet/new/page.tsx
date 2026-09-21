@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DateTimePicker from "@/components/ui/DateTimePicker";
+import Toast from "@/components/Toast";
 
 type ItemRow = {
   name: string;
@@ -124,23 +125,29 @@ export default function NewSheetPage() {
         <h2 className="text-sm font-medium text-gray-700">基本信息</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <label className="text-sm">
-            <span className="text-gray-500">供货日期</span>
+            <span className="text-gray-500">
+              供货日期 <span className="text-red-500">*</span>
+            </span>
             <div className="mt-1">
               <DateTimePicker value={date} onChange={setDate} />
             </div>
           </label>
           <label className="text-sm">
-            <span className="text-gray-500">标题</span>
+            <span className="text-gray-500">
+              标题 <span className="text-red-500">*</span>
+            </span>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="如：龙元花卉（上传 Excel 自动识别）"
+              placeholder="必填，如：嵩明集货站"
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </label>
           <label className="text-sm">
-            <span className="text-gray-500">截止时间</span>
+            <span className="text-gray-500">
+              截止时间 <span className="text-red-500">*</span>
+            </span>
             <div className="mt-1">
               <DateTimePicker value={deadline} onChange={setDeadline} withTime />
             </div>
@@ -322,7 +329,8 @@ export default function NewSheetPage() {
         </div>
       </section>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {/* 全局错误提示（顶部浮动，自动消失） */}
+      <Toast message={error} onDone={() => setError("")} />
 
       <button
         onClick={submit}

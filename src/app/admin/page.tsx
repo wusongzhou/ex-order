@@ -9,20 +9,21 @@ import { sheetStatus } from "@/lib/sheetStatus";
 export default async function AdminHome({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; date?: string }>;
 }) {
   if (!(await isAdmin())) redirect("/admin/login");
 
-  const { q = "", status = "all" } = await searchParams;
+  const { q = "", status = "all", date = "" } = await searchParams;
 
   const sheets = await prisma.supplySheet.findMany({
     orderBy: { id: "desc" },
     include: { orders: { select: { submitted: true } } },
   });
 
-  // 历史筛选：关键字（标题/日期）+ 状态
+  // 历史筛选：关键字（模糊匹配标题）+ 供货日期 + 状态
   const filtered = sheets.filter((s) => {
-    if (q && !(s.title.includes(q) || s.date.includes(q))) return false;
+    if (q && !s.title.includes(q)) return false;
+    if (date && s.date !== date) return false;
     if (status === "open" && !sheetStatus(s).open) return false;
     if (status === "ended" && sheetStatus(s).open) return false;
     return true;
@@ -42,7 +43,7 @@ export default async function AdminHome({
       </div>
 
       {/* 历史查询筛选 */}
-      <HistoryFilter q={q} status={status} />
+      <HistoryFilter q={q} status={status} date={date} />
 
       {sheets.length === 0 ? (
         <p className="mt-10 text-center text-sm text-gray-500">

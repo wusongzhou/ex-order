@@ -38,6 +38,50 @@ function fmtRemaining(ms: number): string {
   return `剩余 ${m} 分钟`;
 }
 
+/** 移动端步进器：紧凑款，36px 高，电商卡片底排对齐用 */
+function Stepper({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  disabled?: boolean;
+}) {
+  const btn =
+    "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-lg text-gray-700 active:bg-gray-100 disabled:opacity-40 disabled:active:bg-white";
+  return (
+    <div className="flex shrink-0 items-center gap-1.5">
+      <button
+        type="button"
+        disabled={disabled || value <= 0}
+        onClick={() => onChange(value - 1)}
+        className={btn}
+        aria-label="减少"
+      >
+        −
+      </button>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={0}
+        value={value}
+        onChange={(e) => onChange(Math.min(Math.max(Math.floor(Number(e.target.value) || 0), 0), 99999))}
+        className="h-9 w-12 rounded-lg border border-gray-300 text-center text-base font-medium outline-none focus:border-gray-900"
+      />
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(value + 1)}
+        className={btn}
+        aria-label="增加"
+      >
+        ＋
+      </button>
+    </div>
+  );
+}
+
 export default function OrderForm({ token, customerName, sheet, editable, submitted, submittedAt, items }: Props) {
   const [qtys, setQtys] = useState<Record<number, number>>(
     () => Object.fromEntries(items.map((i) => [i.id, i.quantity])) as Record<number, number>
@@ -79,11 +123,6 @@ export default function OrderForm({ token, customerName, sheet, editable, submit
   const refreshCooldown =
     now === null ? 0 : Math.max(0, 60 - Math.floor((now - lastRefresh) / 1000));
 
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
   const manualRefresh = useCallback(async () => {
     if (refreshCooldown > 0) return;
     setLastRefresh(Date.now());
@@ -99,10 +138,7 @@ export default function OrderForm({ token, customerName, sheet, editable, submit
 
   const remainOf = (it: ItemView) => (it.remain === null ? null : remainMap[it.id] ?? it.remain);
 
-  const setQty = (id: number, v: string) => {
-    const n = Math.min(Math.max(Math.floor(Number(v) || 0), 0), 99999);
-    setQtys((prev) => ({ ...prev, [id]: n }));
-  };
+  const setQty = (id: number, n: number) => setQtys((prev) => ({ ...prev, [id]: n }));
 
   const save = async () => {
     setSaving(true);
@@ -128,121 +164,134 @@ export default function OrderForm({ token, customerName, sheet, editable, submit
   };
 
   return (
-    <main className="mx-auto max-w-lg px-4 pb-28 pt-8">
+    <main className="mx-auto max-w-lg px-4 pb-36 pt-6">
+      {/* 头部信息卡 */}
       <div className="rounded-2xl bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold">
+          <h1 className="text-xl font-semibold">
             {sheet.date} 供货单{sheet.title ? ` · ${sheet.title}` : ""}
           </h1>
           {savedAt && (
-            <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-700">已提交</span>
+            <span className="rounded-full bg-green-100 px-2.5 py-1 text-sm text-green-700">已提交</span>
           )}
         </div>
-        <p className="mt-1 text-sm text-gray-600">{customerName}，请填写您今日需要的订购数量</p>
-        <p className={`mt-2 text-xs ${remaining !== null && remaining <= 0 ? "text-amber-600" : "text-gray-400"}`}>
+        <p className="mt-1.5 text-base text-gray-600">{customerName}，请填写您今日需要的订购数量</p>
+        <p className={`mt-2 text-sm ${remaining !== null && remaining <= 0 ? "text-amber-600" : "text-gray-400"}`}>
           截止时间 {deadline.toLocaleString("zh-CN", { hour12: false })}
           {remaining !== null && `（${fmtRemaining(remaining)}）`}
         </p>
-        {canEdit && (
-          <div className="mt-3 flex justify-end">
-            <button
-              onClick={manualRefresh}
-              disabled={refreshCooldown > 0}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-              title="刷新最新库存"
-            >
-              ↻ 刷新库存{refreshCooldown > 0 ? `（${refreshCooldown}s）` : ""}
-            </button>
-          </div>
-        )}
       </div>
 
+      {/* 商品卡片列表：电商标准卡片 = 左 1:1 方图 + 右名称/属性 + 底排 红价左、步进器右 */}
       <div className="mt-4 space-y-2">
         {items.map((it) => {
-          const attrs = [it.size, it.flowerType, it.color, it.grade].filter(Boolean).join(" · ");
           const remain = remainOf(it);
           const soldOut = canEdit && remain !== null && remain <= 0 && (qtys[it.id] || 0) === 0;
           return (
-            <div key={it.id} className={`rounded-xl bg-white p-4 shadow-sm ${soldOut ? "opacity-60" : ""}`}>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  {(it.hasImage1 || it.hasImage2) && (
-                    <div className="flex shrink-0 gap-1">
-                      {it.hasImage1 && (
-                        <img
-                          src={`/api/item-image/${it.id}?n=1`}
-                          alt={it.name}
-                          className="h-14 w-14 rounded-lg object-cover"
-                        />
-                      )}
-                      {it.hasImage2 && (
-                        <img
-                          src={`/api/item-image/${it.id}?n=2`}
-                          alt={it.name}
-                          className="h-14 w-14 rounded-lg object-cover"
-                        />
-                      )}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">
-                      {it.name}
-                      {it.grade && <span className="ml-1 text-sm font-normal text-gray-500">{it.grade}级</span>}
-                    </p>
-                    {attrs && <p className="mt-0.5 text-xs text-gray-500">{attrs}</p>}
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      ¥{it.price.toFixed(2)}
-                      {remain !== null && (
-                        <span className={`ml-2 font-medium ${remain <= 0 ? "text-red-500" : "text-amber-600"}`}>
-                          {remain <= 0 ? "已订完" : `库存 ${remain}`}
+            <div key={it.id} className={`rounded-xl bg-white p-3 shadow-sm ${soldOut ? "opacity-60" : ""}`}>
+              <div className="flex gap-3">
+                {(it.hasImage1 || it.hasImage2) && (
+                  <div className="flex shrink-0 gap-2">
+                    {it.hasImage1 && (
+                      <img
+                        src={`/api/item-image/${it.id}?n=1`}
+                        alt={it.name}
+                        className="h-24 w-24 rounded-lg object-cover"
+                      />
+                    )}
+                    {it.hasImage2 && (
+                      <img
+                        src={`/api/item-image/${it.id}?n=2`}
+                        alt={it.name}
+                        className="h-24 w-24 rounded-lg object-cover"
+                      />
+                    )}
+                  </div>
+                )}
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <p className="line-clamp-2 text-base font-medium leading-snug">{it.name}</p>
+                  {/* 规格标签 + 库存标签（不与步进器抢空间） */}
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {[it.size, it.flowerType, it.color].filter(Boolean).map((a) => (
+                      <span key={a} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                        {a}
+                      </span>
+                    ))}
+                    {it.grade && (
+                      <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                        {it.grade}级
+                      </span>
+                    )}
+                    {remain !== null &&
+                      (remain <= 0 ? (
+                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-600">
+                          已订完
                         </span>
-                      )}
-                    </p>
+                      ) : (
+                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                          库存{remain}
+                        </span>
+                      ))}
+                  </div>
+                  {/* 底排：左红价右步进器，各自不收缩不变形 */}
+                  <div className="mt-auto flex items-end justify-between gap-2 pt-1">
+                    <span className="shrink-0 whitespace-nowrap text-lg font-bold leading-none text-red-600">
+                      <span className="text-sm">¥</span>
+                      {it.price.toFixed(2)}
+                    </span>
+                    {canEdit && !soldOut ? (
+                      <Stepper value={qtys[it.id] || 0} onChange={(v) => setQty(it.id, v)} />
+                    ) : (
+                      <span className="shrink-0 text-base text-gray-500">
+                        ×<span className="text-lg font-semibold text-gray-900">{qtys[it.id] || 0}</span>
+                      </span>
+                    )}
                   </div>
                 </div>
-                {canEdit && !soldOut ? (
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    step={1}
-                    value={qtys[it.id] || 0}
-                    onChange={(e) => setQty(it.id, e.target.value)}
-                    className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-center text-base"
-                  />
-                ) : (
-                  <span className="text-lg font-semibold">{qtys[it.id] || 0}</span>
-                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {msg && <p className={`mt-3 text-sm ${msgOk ? "text-green-700" : "text-red-600"}`}>{msg}</p>}
-
-      {canEdit && (
-        <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white/95 p-4 backdrop-blur">
-          <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
-            <div className="text-sm text-gray-600">
-              共 <span className="font-semibold text-gray-900">{totalCount}</span> 件 · 合计{" "}
-              <span className="text-lg font-semibold text-gray-900">¥{totalAmount.toFixed(2)}</span>
-            </div>
-            <button
-              onClick={save}
-              disabled={saving}
-              className="rounded-xl bg-gray-900 px-8 py-3 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-            >
-              {saving ? "提交中..." : savedAt ? "更新订购" : "提交订购"}
-            </button>
-          </div>
-        </div>
-      )}
-
       {!canEdit && (
         <p className="mt-4 text-center text-sm text-gray-400">
           {sheet.status === "closed" ? "本单已关闭，如需调整请联系供货方" : "已截止，如需调整请联系供货方"}
         </p>
+      )}
+
+      {/* 底部固定提交栏（含结果提示 + 刷新按钮在提交右侧） */}
+      {canEdit && (
+        <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white/95 px-4 pb-4 pt-3 backdrop-blur">
+          <div className="mx-auto max-w-lg">
+            {msg && (
+              <p className={`mb-2 text-center text-sm ${msgOk ? "text-green-700" : "text-red-600"}`}>{msg}</p>
+            )}
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm text-gray-600">
+                共 <span className="font-semibold text-gray-900">{totalCount}</span> 件
+                <span className="ml-2 text-lg font-semibold text-gray-900">¥{totalAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={manualRefresh}
+                  disabled={refreshCooldown > 0}
+                  className="rounded-xl border border-gray-300 px-3 py-3 text-sm text-gray-600 active:bg-gray-100 disabled:opacity-50"
+                  title="刷新最新库存"
+                >
+                  ↻{refreshCooldown > 0 ? ` ${refreshCooldown}s` : " 刷新"}
+                </button>
+                <button
+                  onClick={save}
+                  disabled={saving}
+                  className="rounded-xl bg-gray-900 px-6 py-3 text-base font-medium text-white active:bg-gray-700 disabled:opacity-50"
+                >
+                  {saving ? "提交中..." : savedAt ? "更新订购" : "提交订购"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

@@ -232,7 +232,9 @@ export default function SheetActions({
             </div>
           </label>
           <label className="block text-sm">
-            <span className="text-gray-600">标题</span>
+            <span className="text-gray-600">
+              标题 <span className="text-red-500">*</span>
+            </span>
             <input
               value={copyTitle}
               onChange={(e) => setCopyTitle(e.target.value)}
