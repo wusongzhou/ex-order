@@ -1,19 +1,22 @@
 # ---------- 依赖层 ----------
 FROM node:20-alpine AS deps
-RUN apk add --no-cache openssl tzdata
+# 国内镜像加速：alpine 源 + npm 源
+RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories \
+    && apk add --no-cache openssl tzdata
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
-RUN npm ci
+RUN npm config set registry https://registry.npmmirror.com && npm ci
 
 # ---------- 构建层 ----------
 FROM node:20-alpine AS builder
-RUN apk add --no-cache openssl tzdata
+RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories \
+    && apk add --no-cache openssl tzdata
 ENV TZ=Asia/Shanghai NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate && npm run build
+RUN npm config set registry https://registry.npmmirror.com && npx prisma generate && npm run build
 
 # ---------- 运行层（仅含 standalone 产物 + Prisma 运行时） ----------
 FROM node:20-alpine AS runner
