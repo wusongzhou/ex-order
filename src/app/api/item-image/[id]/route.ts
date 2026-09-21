@@ -10,11 +10,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id: Number(id) },
     select: { image1: true, image2: true },
   });
-  const buf = item?.[which];
-  if (!buf) {
+  const raw = item?.[which];
+  if (!raw) {
     return new NextResponse("Not Found", { status: 404 });
   }
 
+  // Prisma v6 的 Bytes 类型为 Uint8Array，这里转 Buffer 以使用 subarray
+  const buf = Buffer.from(raw);
   const head = buf.subarray(0, 3).toString("hex").toLowerCase();
   const type = head === "ffd8ff" ? "image/jpeg" : "image/png";
   return new NextResponse(new Uint8Array(buf), {
