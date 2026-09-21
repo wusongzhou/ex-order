@@ -1,9 +1,10 @@
 services:
-  supply-order:
+  ex-order:
     build: .
-    container_name: supply-order
+    container_name: ex-order
     ports:
-      - "3000:3000"
+      # 宿主机端口改为高位冷门端口，降低被扫描概率；容器内部仍是 3000
+      - "49632:3000"
     environment:
       - TZ=Asia/Shanghai
       # 部署前务必修改以下两项
