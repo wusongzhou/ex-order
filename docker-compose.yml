@@ -11,8 +11,8 @@ services:
       - ADMIN_PASSWORD=admin123
       - SESSION_SECRET=please-change-me-to-a-long-random-string
     volumes:
-      - supply-data:/app/data
+      - ex-order-data:/app/data
     restart: unless-stopped
 
 volumes:
-  supply-data:
+  ex-order-data:

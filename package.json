@@ -4,7 +4,7 @@
   "private": true,
   "description": "每日供货订购收集工具：商家发布供货单，客户通过专属链接填写订购数量，互相不可见",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 49632",
     "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",

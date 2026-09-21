@@ -18,7 +18,7 @@ Next.js 15 (App Router) + TypeScript + Tailwind CSS v4 + Prisma + SQLite + xlsx
 ```bash
 npm install
 npm run db:push     # 初始化 SQLite 表结构
-npm run dev         # http://localhost:3000
+npm run dev         # http://localhost:49632
 ```
 
 登录：访问 `/admin`，默认密码 `admin123`（见 `.env` 中 `ADMIN_PASSWORD`，务必修改）。
@@ -44,7 +44,7 @@ npm run dev         # http://localhost:3000
 docker compose up -d --build
 ```
 
-- 数据（SQLite）持久化在 `supply-data` 卷中，重建容器不丢数据
+- 数据（SQLite）持久化在 `ex-order-data` 卷中，重建容器不丢数据
 - 容器时区已设为 Asia/Shanghai，截止时间按北京时间处理
 - 生产环境建议前置 Nginx/Caddy 反向代理并开启 HTTPS（微信内打开 + 「复制链接」功能依赖安全上下文）
 
