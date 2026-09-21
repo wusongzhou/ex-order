@@ -1,5 +1,5 @@
 {
-  "name": "supply-order",
+  "name": "ex-order",
   "version": "1.0.0",
   "private": true,
   "description": "每日供货订购收集工具：商家发布供货单，客户通过专属链接填写订购数量，互相不可见",
