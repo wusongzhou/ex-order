@@ -38,6 +38,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         submittedAt: o.submittedAt ? o.submittedAt.toISOString() : null,
         summary,
         amount: +amount.toFixed(2),
+        items: o.items.map((oi) => {
+          const it = itemMap.get(oi.sheetItemId);
+          return {
+            name: it ? itemShortLabel(it) : "?",
+            price: it?.price ?? 0,
+            quantity: oi.quantity,
+            amount: +(oi.quantity * (it?.price ?? 0)).toFixed(2),
+          };
+        }),
       };
     }),
   });
