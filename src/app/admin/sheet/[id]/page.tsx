@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
 import OrderLinks from "@/components/OrderLinks";
 import SheetActions from "@/components/SheetActions";
+import StockCell from "@/components/StockCell";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { fmtDateTime, sheetStatus } from "@/lib/sheetStatus";
@@ -17,26 +18,29 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
     where: { id: sheetId },
     include: {
       items: { orderBy: { sort: "asc" } },
-      orders: { select: { id: true, submitted: true } },
+      orders: { include: { items: true }, orderBy: { id: "asc" } },
     },
   });
   if (!sheet) notFound();
 
   const status = sheetStatus(sheet);
 
-  // 按数据库聚合每项订购总量（包含所有订单）
-  const orderItems = await prisma.orderItem.groupBy({
-    by: ["sheetItemId"],
-    where: { order: { sheetId } },
-    _sum: { quantity: true },
-  });
-  const qtyMap = new Map(orderItems.map((g) => [g.sheetItemId, g._sum.quantity ?? 0]));
+  // 汇总：订购总量 + 实时剩余 + 每个客户的订购数量（透视）
   const totalRows = sheet.items.map((it) => {
-    const qty = qtyMap.get(it.id) ?? 0;
-    return { it, qty, amount: qty * it.price };
+    const qty = sheet.orders.reduce(
+      (s, o) => s + (o.items.find((oi) => oi.sheetItemId === it.id)?.quantity ?? 0),
+      0
+    );
+    const remain = it.stock >= 9999 ? null : it.stock - qty;
+    return { it, qty, remain, amount: qty * it.price };
   });
   const grand = totalRows.reduce((s, t) => s + t.amount, 0);
   const submittedCount = sheet.orders.filter((o) => o.submitted).length;
+  const customerCols = sheet.orders.map((o) => ({
+    id: o.id,
+    name: o.customerName,
+    qtyOf: (sheetItemId: number) => o.items.find((oi) => oi.sheetItemId === sheetItemId)?.quantity ?? 0,
+  }));
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
@@ -95,11 +99,16 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
                 <th className="px-4 py-3">剩余数量</th>
                 <th className="px-4 py-3">单价</th>
                 <th className="px-4 py-3">订购总量</th>
+                {customerCols.map((c) => (
+                  <th key={c.id} className="px-4 py-3" title={c.name}>
+                    {c.name}
+                  </th>
+                ))}
                 <th className="px-4 py-3">金额</th>
               </tr>
             </thead>
             <tbody>
-              {totalRows.map(({ it, qty, amount }) => (
+              {totalRows.map(({ it, qty, remain, amount }) => (
                 <tr key={it.id} className="border-b border-gray-100 last:border-0">
                   <td className="px-4 py-2">
                     {it.image1 ? (
@@ -118,14 +127,25 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
                   <td className="px-4 py-3 text-gray-600">{it.color || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{it.grade || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{it.rawStock}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.stock >= 9999 ? "不限" : it.stock}</td>
+                  <td className="px-4 py-3">
+                    {remain === null ? (
+                      <span className="text-gray-600">不限</span>
+                    ) : (
+                      <StockCell itemId={it.id} stock={it.stock} orderedQty={qty} remain={remain} />
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-gray-600">¥{it.price.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-gray-600">{qty}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{qty}</td>
+                  {customerCols.map((c) => (
+                    <td key={c.id} className="px-4 py-3 text-gray-600">
+                      {c.qtyOf(it.id) || "-"}
+                    </td>
+                  ))}
                   <td className="px-4 py-3 text-gray-600">¥{amount.toFixed(2)}</td>
                 </tr>
               ))}
               <tr className="bg-gray-50 font-medium">
-                <td className="px-4 py-3" colSpan={10}>
+                <td className="px-4 py-3" colSpan={10 + customerCols.length}>
                   合计
                 </td>
                 <td className="px-4 py-3">¥{grand.toFixed(2)}</td>

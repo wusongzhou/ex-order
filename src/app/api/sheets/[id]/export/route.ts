@@ -23,15 +23,29 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const qtyOf = (orderId: number, sheetItemId: number) =>
     sheet.orders.find((o) => o.id === orderId)?.items.find((oi) => oi.sheetItemId === sheetItemId)?.quantity ?? 0;
 
-  // Sheet 1：按商品汇总（保留模板属性列）
+  // Sheet 1：按商品汇总（与页面透视表一致：实时剩余 + 每个客户一列）
+  const customerNames = sheet.orders.map((o) => o.customerName);
   const summaryAoa: (string | number)[][] = [
-    ["品种名", "花径", "花型", "颜色", "等级", "原始库存", "剩余数量", "单价(元)", "订购总量", "金额(元)"],
+    [
+      "品种名",
+      "花径",
+      "花型",
+      "颜色",
+      "等级",
+      "原始库存",
+      "剩余数量",
+      "单价(元)",
+      "订购总量",
+      ...customerNames,
+      "金额(元)",
+    ],
   ];
   let grandTotal = 0;
   for (const it of sheet.items) {
     const qty = sheet.orders.reduce((s, o) => s + qtyOf(o.id, it.id), 0);
     const amount = +(qty * it.price).toFixed(2);
     grandTotal += amount;
+    const remain = it.stock >= 9999 ? "不限" : it.stock - qty;
     summaryAoa.push([
       it.name,
       it.size,
@@ -39,13 +53,26 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       it.color,
       it.grade,
       it.rawStock,
-      it.stock >= 9999 ? "不限" : it.stock,
+      remain,
       it.price,
       qty,
+      ...sheet.orders.map((o) => qtyOf(o.id, it.id) || ""),
       amount,
     ]);
   }
-  summaryAoa.push(["合计", "", "", "", "", "", "", "", "", +grandTotal.toFixed(2)]);
+  summaryAoa.push([
+    "合计",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ...sheet.orders.map(() => ""),
+    +grandTotal.toFixed(2),
+  ]);
 
   // Sheet 2：按客户明细
   const detailAoa: (string | number)[][] = [
