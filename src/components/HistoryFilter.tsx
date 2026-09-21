@@ -37,7 +37,7 @@ export default function HistoryFilter({
         value={kw}
         onChange={(e) => setKw(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && apply()}
-        placeholder="模糊搜索标题，如：龙元"
+        placeholder="模糊搜索标题"
         className="min-w-44 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
       />
       <DateTimePicker value={dt} onChange={setDt} placeholder="供货日期" className="w-40" />
