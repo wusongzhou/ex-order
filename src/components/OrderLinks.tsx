@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import Modal from "@/components/Modal";
 
@@ -18,6 +19,7 @@ type OrderRow = {
 };
 
 export default function OrderLinks({ sheetId }: { sheetId: number }) {
+  const router = useRouter();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,20 +32,21 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
   const [detailTarget, setDetailTarget] = useState<OrderRow | null>(null);
   const [actionErr, setActionErr] = useState("");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const r = await fetch(`/api/sheets/${sheetId}/orders`);
     if (r.status === 401) {
-      window.location.href = "/admin/login";
+      router.replace("/admin/login");
       return;
     }
     const d = await r.json();
     setOrders(d.orders || []);
     setLoaded(true);
-  };
+  }, [sheetId, router]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 初始拉取数据的标准模式（fetch 异步后才 setState）
     load();
-  }, [sheetId]);
+  }, [load]);
 
   const add = async () => {
     const n = name.trim();
@@ -198,7 +201,8 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
       )}
       {orders.length > 0 && (
         <p className="mt-2 text-xs text-gray-400">
-          已提交 {orders.filter((o) => o.submitted).length} / {orders.length} · 每个客户只能看到和修改自己的数量
+          已提交 {orders.filter((o) => o.submitted).length} / {orders.length} ·
+          每个客户只能看到和修改自己的数量
         </p>
       )}
 
@@ -259,9 +263,7 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
           </>
         }
       >
-        <p>
-          删除「{deleteTarget?.customerName}」？其填写记录将一并删除，不可恢复。
-        </p>
+        <p>删除「{deleteTarget?.customerName}」？其填写记录将一并删除，不可恢复。</p>
       </Modal>
 
       {/* 订购详情弹窗 */}

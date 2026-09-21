@@ -21,7 +21,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const qtyOf = (orderId: number, sheetItemId: number) =>
-    sheet.orders.find((o) => o.id === orderId)?.items.find((oi) => oi.sheetItemId === sheetItemId)?.quantity ?? 0;
+    sheet.orders.find((o) => o.id === orderId)?.items.find((oi) => oi.sheetItemId === sheetItemId)
+      ?.quantity ?? 0;
 
   // Sheet 1：按商品汇总（与页面透视表一致：实时剩余 + 每个客户一列）
   const customerNames = sheet.orders.map((o) => o.customerName);

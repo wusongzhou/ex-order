@@ -163,7 +163,8 @@ export default function NewSheetPage() {
           <div>
             <h2 className="text-sm font-medium text-gray-700">上传今日商品表（Excel）</h2>
             <p className="mt-1 text-xs text-gray-400">
-              按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 = 原始库存，可手动调整
+              按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 =
+              原始库存，可手动调整
             </p>
           </div>
           <a
@@ -203,7 +204,9 @@ export default function NewSheetPage() {
           </button>
         </div>
         {uploadInfo && (
-          <p className={`mt-2 text-sm ${uploadInfoError ? "text-red-600" : "text-green-700"}`}>{uploadInfo}</p>
+          <p className={`mt-2 text-sm ${uploadInfoError ? "text-red-600" : "text-green-700"}`}>
+            {uploadInfo}
+          </p>
         )}
       </section>
 
@@ -287,7 +290,11 @@ export default function NewSheetPage() {
                         type="number"
                         min={0}
                         value={c.rawStock}
-                        onChange={(e) => setRow(i, { rawStock: Math.max(0, Math.floor(Number(e.target.value) || 0)) })}
+                        onChange={(e) =>
+                          setRow(i, {
+                            rawStock: Math.max(0, Math.floor(Number(e.target.value) || 0)),
+                          })
+                        }
                         className="w-16 rounded border border-gray-300 px-2 py-1.5 text-sm"
                       />
                     </td>
@@ -298,7 +305,9 @@ export default function NewSheetPage() {
                         value={c.stock >= 9999 ? "" : c.stock}
                         placeholder="不限"
                         onChange={(e) =>
-                          setRow(i, { stock: e.target.value === "" ? 9999 : Number(e.target.value) })
+                          setRow(i, {
+                            stock: e.target.value === "" ? 9999 : Number(e.target.value),
+                          })
                         }
                         className="w-16 rounded border border-gray-300 px-2 py-1.5 text-sm"
                       />

@@ -13,11 +13,12 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 挂载后读取本地记住的密码（避免 hydration 不一致）
+  // 挂载后读取本地记住的密码（避免 hydration 不一致，localStorage 只在客户端存在）
   useEffect(() => {
     try {
       const saved = localStorage.getItem(REMEMBER_KEY);
       if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 水合安全的标准模式
         setPassword(saved);
         setRemember(true);
       }
@@ -56,10 +57,7 @@ export default function AdminLoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm"
-      >
+      <form onSubmit={submit} className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
         <h1 className="text-lg font-semibold">供货订购 · 商家登录</h1>
         <p className="mt-1 text-sm text-gray-500">仅供货方使用，客户无需登录</p>
 
@@ -83,7 +81,9 @@ export default function AdminLoginPage() {
               <svg className="h-4.5 w-4.5" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"
-                  stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
                 />
                 <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.6" />
               </svg>
@@ -91,10 +91,17 @@ export default function AdminLoginPage() {
               <svg className="h-4.5 w-4.5" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"
-                  stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
                 />
                 <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.6" />
-                <path d="M4 20 20 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path
+                  d="M4 20 20 4"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
               </svg>
             )}
           </button>
@@ -115,7 +122,10 @@ export default function AdminLoginPage() {
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
                 <path
                   d="M2 6.2 4.8 9 10 3.4"
-                  stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                  stroke="white"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             )}

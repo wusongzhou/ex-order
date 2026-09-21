@@ -45,8 +45,12 @@ export async function POST(req: NextRequest) {
       color: String(it?.color ?? "").trim(),
       grade: String(it?.grade ?? "").trim(),
       price: Number(it?.price) || 0,
-      rawStock: Number.isInteger(Number(it?.rawStock)) && Number(it?.rawStock) >= 0 ? Number(it?.rawStock) : 0,
-      stock: Number.isInteger(Number(it?.stock)) && Number(it?.stock) > 0 ? Number(it?.stock) : 9999,
+      rawStock:
+        Number.isInteger(Number(it?.rawStock)) && Number(it?.rawStock) >= 0
+          ? Number(it?.rawStock)
+          : 0,
+      stock:
+        Number.isInteger(Number(it?.stock)) && Number(it?.stock) > 0 ? Number(it?.stock) : 9999,
       image1:
         typeof it?.image1 === "string" && it.image1 ? Buffer.from(it.image1, "base64") : undefined,
       image2:

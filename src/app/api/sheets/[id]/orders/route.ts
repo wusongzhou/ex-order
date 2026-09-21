@@ -13,7 +13,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const sheet = await prisma.supplySheet.findUnique({
     where: { id: Number(id) },
     include: {
-      items: { orderBy: { sort: "asc" }, select: { id: true, name: true, grade: true, color: true, price: true } },
+      items: {
+        orderBy: { sort: "asc" },
+        select: { id: true, name: true, grade: true, color: true, price: true },
+      },
       orders: { include: { items: true }, orderBy: { id: "asc" } },
     },
   });
@@ -28,7 +31,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         0
       );
       const summary = o.items.length
-        ? o.items.map((oi) => `${itemShortLabel(itemMap.get(oi.sheetItemId) ?? { name: "?" })}×${oi.quantity}`).join("、")
+        ? o.items
+            .map(
+              (oi) =>
+                `${itemShortLabel(itemMap.get(oi.sheetItemId) ?? { name: "?" })}×${oi.quantity}`
+            )
+            .join("、")
         : "";
       return {
         id: o.id,

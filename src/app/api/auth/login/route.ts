@@ -30,10 +30,7 @@ export async function POST(req: NextRequest) {
   const rec = fails.get(ip);
   if (rec && rec.lockUntil > now) {
     const waitMin = Math.ceil((rec.lockUntil - now) / 60000);
-    return NextResponse.json(
-      { error: `尝试次数过多，请 ${waitMin} 分钟后再试` },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: `尝试次数过多，请 ${waitMin} 分钟后再试` }, { status: 429 });
   }
 
   let password = "";
@@ -49,10 +46,7 @@ export async function POST(req: NextRequest) {
     const count = (rec?.count ?? 0) + 1;
     if (count >= MAX_FAILS) {
       fails.set(ip, { count: 0, lockUntil: now + LOCK_MS });
-      return NextResponse.json(
-        { error: "密码错误次数过多，已锁定 10 分钟" },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: "密码错误次数过多，已锁定 10 分钟" }, { status: 429 });
     }
     fails.set(ip, { count, lockUntil: 0 });
     return NextResponse.json(

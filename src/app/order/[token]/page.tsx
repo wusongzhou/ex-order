@@ -4,7 +4,11 @@ import OrderForm from "@/components/OrderForm";
 import { prisma } from "@/lib/db";
 
 /** 分享卡片 meta：微信/浏览器里发链接时显示标题与描述，而不是裸 URL */
-export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
   const { token } = await params;
   const order = await prisma.order.findUnique({
     where: { token },
@@ -40,6 +44,7 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
 
   if (!order) notFound();
 
+  // eslint-disable-next-line react-hooks/purity -- 服务器组件按请求时刻计算，无水合问题
   const editable = order.sheet.status === "open" && order.sheet.deadline.getTime() > Date.now();
 
   // 实时剩余 = 库存 - 全部已提交（含自己）

@@ -38,7 +38,9 @@ function extractImages(data: Buffer): Map<string, Buffer> {
   } catch {
     return map;
   }
-  const drawingEntry = zip.getEntries().find((e) => /^xl\/drawings\/drawing\d+\.xml$/.test(e.entryName));
+  const drawingEntry = zip
+    .getEntries()
+    .find((e) => /^xl\/drawings\/drawing\d+\.xml$/.test(e.entryName));
   if (!drawingEntry) return map;
   const xml = drawingEntry.getData().toString("utf-8");
 
@@ -57,7 +59,9 @@ function extractImages(data: Buffer): Map<string, Buffer> {
   }
 
   // 每个 anchor 的起始单元格 + 引用的图片
-  for (const a of xml.matchAll(/<xdr:(?:one|two)CellAnchor[\s\S]*?<\/xdr:(?:one|two)CellAnchor>/g)) {
+  for (const a of xml.matchAll(
+    /<xdr:(?:one|two)CellAnchor[\s\S]*?<\/xdr:(?:one|two)CellAnchor>/g
+  )) {
     const block = a[0];
     const from = block.match(/<xdr:from>[\s\S]*?<\/xdr:from>/);
     const rid = block.match(/r:embed="([^"]+)"/);
@@ -94,7 +98,9 @@ export function parseWorkbook(data: Buffer) {
     }
   }
   if (headerRow < 0) {
-    throw new Error("未找到表头行（第一个工作表第一列应包含「品种名」）");
+    throw new Error(
+      "上传的表格不是模板格式：未找到「品种名」表头。请使用页面「下载模板」中的表格结构"
+    );
   }
 
   // 按表头文字定位各字段所在列
@@ -104,6 +110,18 @@ export function parseWorkbook(data: Buffer) {
     const field = FIELD_BY_HEADER[String(header[j] ?? "").trim()];
     if (field && !(field in col)) col[field] = j;
   }
+
+  // 必填列校验：品种名（已定位）+ 价格 + 原始库存，缺一不可
+  const missingNames: string[] = [];
+  if (!("price" in col)) missingNames.push("价格");
+  if (!("rawStock" in col)) missingNames.push("原始库存");
+  if (missingNames.length > 0) {
+    throw new Error(
+      `上传的表格不是模板格式：表头缺少「${missingNames.join("、")}」列。` +
+        "请使用页面「下载模板」中的表格结构（品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存）"
+    );
+  }
+
   const cell = (row: unknown[], field: string) => (field in col ? row[col[field]] : "");
   const text = (v: unknown) => String(v ?? "").trim();
 
@@ -127,8 +145,12 @@ export function parseWorkbook(data: Buffer) {
     if (priceRaw === "" || priceRaw === null || priceRaw === undefined || isNaN(price)) continue;
 
     const rawStockNum = Number(cell(row, "rawStock"));
-    const hasRawStock = "rawStock" in col && rawStockNum !== null && rawStockNum !== undefined &&
-      cell(row, "rawStock") !== "" && !isNaN(rawStockNum);
+    const hasRawStock =
+      "rawStock" in col &&
+      rawStockNum !== null &&
+      rawStockNum !== undefined &&
+      cell(row, "rawStock") !== "" &&
+      !isNaN(rawStockNum);
     const rawStock = hasRawStock && rawStockNum >= 0 ? rawStockNum : 0;
     // 剩余数量自动生成 = 原始库存；模板无原始库存列时视为不限量
     const stock = hasRawStock ? rawStock : 9999;
@@ -147,7 +169,10 @@ export function parseWorkbook(data: Buffer) {
     };
 
     const key = `${item.name}|${item.size}|${item.flowerType}|${item.color}|${item.grade}`;
-    if (items.some((it) => `${it.name}|${it.size}|${it.flowerType}|${it.color}|${it.grade}` === key)) continue;
+    if (
+      items.some((it) => `${it.name}|${it.size}|${it.flowerType}|${it.color}|${it.grade}` === key)
+    )
+      continue;
     items.push(item);
   }
 

@@ -40,7 +40,8 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
   const customerCols = sheet.orders.map((o) => ({
     id: o.id,
     name: o.customerName,
-    qtyOf: (sheetItemId: number) => o.items.find((oi) => oi.sheetItemId === sheetItemId)?.quantity ?? 0,
+    qtyOf: (sheetItemId: number) =>
+      o.items.find((oi) => oi.sheetItemId === sheetItemId)?.quantity ?? 0,
   }));
 
   return (
@@ -66,7 +67,10 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
       <SheetActions
         id={sheet.id}
         status={sheet.status}
-        deadlinePassed={new Date(sheet.deadline).getTime() <= Date.now()}
+        deadlinePassed={
+          // eslint-disable-next-line react-hooks/purity -- 服务器组件按请求时刻计算，无水合问题
+          new Date(sheet.deadline).getTime() <= Date.now()
+        }
         title={sheet.title}
       />
 

@@ -50,13 +50,12 @@ export default async function AdminHome({
           还没有供货单，点击右上角「新建供货单」创建
         </p>
       ) : filtered.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-500">
-          没有符合条件的历史供货单
-        </p>
+        <p className="mt-10 text-center text-sm text-gray-500">没有符合条件的历史供货单</p>
       ) : (
         <>
           <p className="mt-4 text-xs text-gray-400">
-            共 {filtered.length} 张{sheets.length !== filtered.length && `（总计 ${sheets.length} 张）`}
+            共 {filtered.length} 张
+            {sheets.length !== filtered.length && `（总计 ${sheets.length} 张）`}
           </p>
           <div className="mt-2 overflow-x-auto rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
@@ -78,13 +77,18 @@ export default async function AdminHome({
                       <td className="px-4 py-3 font-medium">{s.date}</td>
                       <td className="px-4 py-3 text-gray-600">{s.title || "-"}</td>
                       <td className="px-4 py-3">
-                        <span className={`rounded-full px-2.5 py-0.5 text-xs ${st.cls}`}>{st.label}</span>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs ${st.cls}`}>
+                          {st.label}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {submitted}/{s.orders.length}
                       </td>
                       <td className="px-4 py-3">
-                        <Link href={`/admin/sheet/${s.id}`} className="text-blue-600 hover:underline">
+                        <Link
+                          href={`/admin/sheet/${s.id}`}
+                          className="text-blue-600 hover:underline"
+                        >
                           查看详情
                         </Link>
                       </td>

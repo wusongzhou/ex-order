@@ -21,12 +21,7 @@ export default function StockCell({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  const cls =
-    remain < 0
-      ? "text-red-600"
-      : remain === 0
-        ? "text-amber-600"
-        : "text-green-700";
+  const cls = remain < 0 ? "text-red-600" : remain === 0 ? "text-amber-600" : "text-green-700";
 
   const save = async () => {
     const n = Math.floor(Number(val));
@@ -64,7 +59,7 @@ export default function StockCell({
           setErr("");
         }}
         title={`点击调整库存（当前库存 ${stock}，已订 ${orderedQty}）`}
-        className={`font-medium hover:underline decoration-dotted underline-offset-4 ${cls}`}
+        className={`font-medium decoration-dotted underline-offset-4 hover:underline ${cls}`}
       >
         {remain}
       </button>
@@ -86,7 +81,11 @@ export default function StockCell({
         className="w-16 rounded border border-gray-900 px-2 py-1 text-sm"
       />
       <span className="flex gap-2 text-[11px] leading-none">
-        <button onClick={save} disabled={busy} className="text-gray-900 hover:underline disabled:opacity-50">
+        <button
+          onClick={save}
+          disabled={busy}
+          className="text-gray-900 hover:underline disabled:opacity-50"
+        >
           保存
         </button>
         <button onClick={() => setEditing(false)} className="text-gray-400 hover:underline">

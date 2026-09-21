@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-/** 全局浮动提示（顶部居中，自动消失）。message 为空时不渲染 */
+/** 全局浮动提示（顶部居中，CSS 动画进场，自动消失）。message 为空时不渲染 */
 export default function Toast({
   message,
   ok,
@@ -14,29 +14,20 @@ export default function Toast({
   onDone?: () => void; // 消失后回调（如清除 error 状态）
   duration?: number;
 }) {
-  const [visible, setVisible] = useState(false);
-
+  // 定时消失（timer 属于外部系统，在 effect 中合法）
   useEffect(() => {
     if (!message) return;
-    setVisible(true);
-    const t = setTimeout(() => {
-      setVisible(false);
-      onDone?.();
-    }, duration);
+    const t = setTimeout(() => onDone?.(), duration);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- duration/onDone 由调用方固定
   }, [message]);
 
   if (!message) return null;
 
   return (
-    <div
-      className={`fixed left-1/2 top-6 z-[60] -translate-x-1/2 transition-all duration-300 ${
-        visible ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
-      }`}
-    >
+    <div className="pointer-events-none fixed inset-x-0 top-6 z-[60] flex justify-center">
       <div
-        className={`flex max-w-[90vw] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white shadow-lg ${
+        className={`flex max-w-[90vw] animate-[toast-in_0.3s_ease-out] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white shadow-lg ${
           ok ? "bg-green-600" : "bg-red-600"
         }`}
       >

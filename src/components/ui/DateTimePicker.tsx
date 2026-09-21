@@ -111,8 +111,21 @@ export default function DateTimePicker({
           {value ? value.replace("T", " ") : placeholder}
         </span>
         <svg className="h-4 w-4 text-gray-400" viewBox="0 0 16 16" fill="none">
-          <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          <rect
+            x="2"
+            y="3"
+            width="12"
+            height="11"
+            rx="1.5"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
+          <path
+            d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
         </svg>
       </button>
 
@@ -152,8 +165,7 @@ export default function DateTimePicker({
           <div className="grid grid-cols-7 gap-y-0.5 text-center text-sm">
             {cells.map((d, i) => {
               if (d === null) return <span key={`x${i}`} />;
-              const isSel =
-                hasDate && viewY === vy && viewM === vm - 1 && d === day;
+              const isSel = hasDate && viewY === vy && viewM === vm - 1 && d === day;
               const isToday = `${viewY}-${viewM + 1}-${d}` === todayStr;
               return (
                 <button
@@ -187,7 +199,9 @@ export default function DateTimePicker({
                       if (hasDate) emit(vy, vm - 1, day, qh, qm);
                     }}
                     className={`rounded-md px-2 py-0.5 text-xs ${
-                      tPart === t ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      tPart === t
+                        ? "bg-gray-900 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     {t}
