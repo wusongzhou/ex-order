@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 客户（收货方）——直接在供货单详情页按名称生成专属链接，无需预先维护客户库
+
+// 供货单（一期）
+model SupplySheet {
+  id        Int         @id @default(autoincrement())
+  date      String // 供货日期 YYYY-MM-DD
+  title     String      @default("")
+  deadline  DateTime
+  status    String      @default("open") // open | closed
+  createdAt DateTime    @default(now())
+  items     SheetItem[]
+  orders    Order[]
+}
+
+// 当期商品项（字段与商家 Excel 模板对应）
+model SheetItem {
+  id          Int         @id @default(autoincrement())
+  sheetId     Int
+  sheet       SupplySheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  name        String // 品种名
+  size        String      @default("") // 花径（常规/迷你/大花）
+  flowerType  String      @default("") // 花型
+  color       String      @default("") // 颜色
+  grade       String      @default("") // 等级
+  price       Float       @default(0)
+  rawStock    Int         @default(0) // 原始库存
+  stock       Int         @default(9999) // 剩余数量（可订购上限）
+  image1      Bytes? // 品种图片1（Excel 嵌入图片）
+  image2      Bytes? // 品种图片2
+  sort        Int         @default(0)
+  orderItems  OrderItem[]
+}
+
+// 订单（每客户每期一张，凭 token 免登录填写）
+model Order {
+  id           Int         @id @default(autoincrement())
+  sheetId      Int
+  sheet        SupplySheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  customerName String
+  token        String      @unique
+  submitted    Boolean     @default(false)
+  submittedAt  DateTime?
+  items        OrderItem[]
+}
+
+// 订单明细
+model OrderItem {
+  id          Int        @id @default(autoincrement())
+  orderId     Int
+  order       Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sheetItemId Int
+  sheetItem   SheetItem  @relation(fields: [sheetItemId], references: [id], onDelete: Cascade)
+  quantity    Int        @default(0)
+
+  @@unique([orderId, sheetItemId])
+}
