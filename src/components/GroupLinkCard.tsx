@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   sheetId: number;
@@ -72,18 +73,14 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
 
   if (!token || !code) {
     return (
-      <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="mt-3 rounded-xl border border-dashed border-input bg-card p-6 text-center">
+        <p className="text-sm text-muted-foreground/80">
           未开启。开启后获得一个群链接，发到微信群里，客户点击自行输入姓名订购
         </p>
-        <button
-          onClick={() => call("POST")}
-          disabled={busy}
-          className="mt-3 rounded-lg bg-gray-900 px-5 py-2.5 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
-        >
+        <Button className="mt-3" onClick={() => call("POST")} disabled={busy}>
           {busy ? "生成中..." : "生成群链接"}
-        </button>
-        {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
+        </Button>
+        {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
       </div>
     );
   }
@@ -91,55 +88,51 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
   return (
     <div className="mt-3">
       <div className="flex flex-wrap gap-2">
-        <div className="flex h-10 min-w-52 flex-1 items-center rounded-lg border border-gray-300 px-3 text-sm text-gray-600 select-all">
+        <div className="flex h-9 min-w-52 flex-1 items-center rounded-lg border border-input px-3 text-sm text-muted-foreground select-all">
           <span className="truncate">
             {origin}/join/{token}
           </span>
         </div>
-        <button
-          onClick={doCopyLink}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm text-white hover:bg-gray-700"
-        >
+        <Button size="lg" onClick={doCopyLink}>
           {copiedLink ? "已复制 ✓" : "复制链接"}
-        </button>
+        </Button>
       </div>
       <div className="mt-2 flex flex-wrap gap-2">
-        <div className="flex h-10 min-w-52 flex-1 items-center gap-3 rounded-lg border border-gray-300 px-3">
-          <span className="text-sm text-gray-500">口令</span>
-          <span className="text-base font-bold tracking-[0.3em] text-gray-900">{code}</span>
+        <div className="flex h-9 min-w-52 flex-1 items-center gap-3 rounded-lg border border-input px-3">
+          <span className="text-sm text-muted-foreground/80">口令</span>
+          <span className="text-base font-bold tracking-[0.3em] text-foreground">{code}</span>
         </div>
-        <button
-          onClick={doCopyCode}
-          className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-        >
+        <Button variant="outline" size="lg" onClick={doCopyCode}>
           {copiedCode ? "已复制 ✓" : "复制口令"}
-        </button>
+        </Button>
       </div>
-      <p className="mt-2 text-xs text-gray-400">
+      <p className="mt-2 text-xs text-muted-foreground/55">
         链接发到群里；口令建议单独发给群成员（或下一句话发），用于防止外人乱填。同名会被拒绝，
         客户换手机或清缓存后重新输入姓名会被提示「已被使用」，可联系你从下方列表删除其旧订单。
       </p>
       <div className="mt-2 flex items-center gap-4">
-        <button
+        <Button
+          variant="link"
+          className="h-auto px-0 text-xs text-muted-foreground"
           onClick={() => {
             if (confirm("重新生成后旧链接与旧口令立即失效，确定？")) call("PUT");
           }}
           disabled={busy}
-          className="text-xs text-gray-600 hover:underline disabled:opacity-50"
         >
           重新生成
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="link"
+          className="h-auto px-0 text-xs text-destructive"
           onClick={() => {
             if (confirm("停用后群里将无法再通过链接加入（已自助创建的订单保留），确定？"))
               call("DELETE");
           }}
           disabled={busy}
-          className="text-xs text-red-500 hover:underline disabled:opacity-50"
         >
           停用
-        </button>
-        {err && <span className="text-xs text-red-600">{err}</span>}
+        </Button>
+        {err && <span className="text-xs text-destructive">{err}</span>}
       </div>
     </div>
   );

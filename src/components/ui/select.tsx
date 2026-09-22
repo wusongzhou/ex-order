@@ -60,7 +60,9 @@ function SelectContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
-  alignItemWithTrigger = true,
+  // shadcn 默认 true：仿原生 select，把选中项精确叠在触发框上，视觉上像弹层盖住触发框；
+  // 这里改为 false，弹层常规地在触发框下方弹出（sideOffset 间距 + 动画）
+  alignItemWithTrigger = false,
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "cn";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 /**
@@ -12,7 +13,8 @@ export default function Modal({
   onClose,
   children,
   footer,
-  width = "max-w-sm",
+  // 只声明 sm 以上的宽度；小屏由 DialogContent 内置的 max-w-[calc(100%-2rem)] 留出 1rem 边距
+  width = "sm:max-w-sm",
 }: {
   open: boolean;
   title: string;
@@ -28,11 +30,11 @@ export default function Modal({
         if (!o) onClose();
       }}
     >
-      <DialogContent className={`${width} gap-0 rounded-2xl p-5 sm:max-w-none`}>
+      <DialogContent className={cn("gap-0 rounded-2xl p-5", width)}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="mt-3 text-sm text-gray-600">{children}</div>
+        <div className="mt-3 text-sm text-muted-foreground">{children}</div>
         {footer && <div className="mt-5 flex justify-end gap-2">{footer}</div>}
       </DialogContent>
     </Dialog>

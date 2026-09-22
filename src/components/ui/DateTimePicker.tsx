@@ -53,14 +53,14 @@ export default function DateTimePicker({
         render={
           <Button
             variant="outline"
-            className={`h-9 w-full justify-between font-normal ${className}`}
+            className={`h-8 w-full justify-between font-normal ${className}`}
           />
         }
       >
-        <span className={value ? "text-gray-900" : "text-gray-400"}>
+        <span className={value ? "text-foreground" : "text-muted-foreground/55"}>
           {value ? value.replace("T", " ") : placeholder}
         </span>
-        <CalendarIcon className="h-4 w-4 text-gray-400" />
+        <CalendarIcon className="h-4 w-4 text-muted-foreground/55" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto gap-0 p-0">
         <Calendar
@@ -72,66 +72,76 @@ export default function DateTimePicker({
           }}
         />
         {withTime && (
-          <div className="border-t border-gray-100 p-2">
+          <div className="border-t border-border/60 p-2">
             <div className="mb-1.5 flex flex-wrap gap-1">
               {QUICK_TIMES.map((t) => (
-                <button
+                <Button
                   key={t}
                   type="button"
+                  size="xs"
+                  variant="ghost"
                   onClick={() => emit(base, Number(t.split(":")[0]), Number(t.split(":")[1]))}
-                  className={`rounded-md px-2 py-0.5 text-xs ${
+                  className={
                     value.endsWith(`T${t}`)
-                      ? "bg-gray-900 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+                      ? "bg-primary text-primary-foreground hover:bg-primary"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
+                  }
                 >
                   {t}
-                </button>
+                </Button>
               ))}
             </div>
             <div className="flex gap-2">
-              <div className="thin-scroll h-32 flex-1 overflow-y-auto rounded-lg border border-gray-200">
+              {/* flex-col：让选项按钮各占一行，避免行内按钮被排成一行把弹层内在宽度撑到视口宽 */}
+              <div className="thin-scroll flex h-32 flex-1 flex-col overflow-y-auto rounded-lg border border-border">
                 {Array.from({ length: 24 }, (_, i) => (
-                  <button
+                  <Button
                     key={i}
                     type="button"
+                    variant="ghost"
                     onClick={() => emit(base, i, mm)}
-                    className={`block w-full px-2 py-1.5 text-center text-sm transition-colors hover:bg-gray-50 ${
-                      i === hh ? "bg-gray-900 font-medium text-white" : "text-gray-700"
+                    className={`w-full justify-center rounded-none px-2 text-sm ${
+                      i === hh
+                        ? "bg-primary font-medium text-primary-foreground hover:bg-primary"
+                        : "text-secondary-foreground"
                     }`}
                   >
                     {pad(i)} 时
-                  </button>
+                  </Button>
                 ))}
               </div>
-              <div className="thin-scroll h-32 flex-1 overflow-y-auto rounded-lg border border-gray-200">
+              <div className="thin-scroll flex h-32 flex-1 flex-col overflow-y-auto rounded-lg border border-border">
                 {Array.from({ length: 60 }, (_, i) => (
-                  <button
+                  <Button
                     key={i}
                     type="button"
+                    variant="ghost"
                     onClick={() => emit(base, hh, i)}
-                    className={`block w-full px-2 py-1.5 text-center text-sm transition-colors hover:bg-gray-50 ${
-                      i === mm ? "bg-gray-900 font-medium text-white" : "text-gray-700"
+                    className={`w-full justify-center rounded-none px-2 text-sm ${
+                      i === mm
+                        ? "bg-primary font-medium text-primary-foreground hover:bg-primary"
+                        : "text-secondary-foreground"
                     }`}
                   >
                     {pad(i)} 分
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
           </div>
         )}
-        <div className="flex items-center justify-between border-t border-gray-100 p-2">
-          <button
-            type="button"
+        <div className="flex items-center justify-between border-t border-border/60 p-2">
+          <Button
+            variant="ghost"
+            size="xs"
+            className="text-muted-foreground"
             onClick={() => {
               const now = new Date();
               emit(now, now.getHours(), now.getMinutes());
             }}
-            className="rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100"
           >
             今天
-          </button>
+          </Button>
           <Button size="sm" onClick={() => setOpen(false)}>
             确定
           </Button>

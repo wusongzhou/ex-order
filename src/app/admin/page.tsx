@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
 import HistoryFilter from "@/components/HistoryFilter";
+import { Button } from "@/components/ui/button";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sheetStatus } from "@/lib/sheetStatus";
@@ -34,33 +35,33 @@ export default async function AdminHome({
       <AdminNav />
       <div className="mt-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold">供货单</h1>
-        <Link
-          href="/admin/sheet/new"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
-        >
+        {/* 渲染目标是 Link（非 button），需声明 nativeButton=false */}
+        <Button nativeButton={false} render={<Link href="/admin/sheet/new" />}>
           ＋ 新建供货单
-        </Link>
+        </Button>
       </div>
 
       {/* 历史查询筛选 */}
       <HistoryFilter q={q} status={status} date={date} />
 
       {sheets.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-500">
+        <p className="mt-10 text-center text-sm text-muted-foreground/80">
           还没有供货单，点击右上角「新建供货单」创建
         </p>
       ) : filtered.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-gray-500">没有符合条件的历史供货单</p>
+        <p className="mt-10 text-center text-sm text-muted-foreground/80">
+          没有符合条件的历史供货单
+        </p>
       ) : (
         <>
-          <p className="mt-4 text-xs text-gray-400">
+          <p className="mt-4 text-xs text-muted-foreground/55">
             共 {filtered.length} 张
             {sheets.length !== filtered.length && `（总计 ${sheets.length} 张）`}
           </p>
-          <div className="mt-2 overflow-x-auto rounded-xl border border-gray-200 bg-white">
+          <div className="mt-2 overflow-x-auto rounded-xl border border-border bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
                   <th className="px-4 py-3">供货日期</th>
                   <th className="px-4 py-3">标题</th>
                   <th className="px-4 py-3">状态</th>
@@ -73,22 +74,19 @@ export default async function AdminHome({
                   const st = sheetStatus(s);
                   const submitted = s.orders.filter((o) => o.submitted).length;
                   return (
-                    <tr key={s.id} className="border-b border-gray-100 last:border-0">
+                    <tr key={s.id} className="border-b border-border/60 last:border-0">
                       <td className="px-4 py-3 font-medium">{s.date}</td>
-                      <td className="px-4 py-3 text-gray-600">{s.title || "-"}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{s.title || "-"}</td>
                       <td className="px-4 py-3">
                         <span className={`rounded-full px-2.5 py-0.5 text-xs ${st.cls}`}>
                           {st.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {submitted}/{s.orders.length}
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          href={`/admin/sheet/${s.id}`}
-                          className="text-blue-600 hover:underline"
-                        >
+                        <Link href={`/admin/sheet/${s.id}`} className="text-info hover:text-info">
                           查看详情
                         </Link>
                       </td>

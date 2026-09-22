@@ -36,11 +36,13 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
 
   return (
     <main className="mx-auto max-w-lg px-4 pt-6">
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div className="rounded-2xl bg-card p-5 shadow-sm">
         <h1 className="text-xl font-semibold">
           {sheet.date} 供货单{sheet.title ? ` · ${sheet.title}` : ""}
         </h1>
-        <p className="mt-1.5 text-sm text-gray-400">截止时间 {fmtDateTime(sheet.deadline)}</p>
+        <p className="mt-1.5 text-sm text-muted-foreground/55">
+          截止时间 {fmtDateTime(sheet.deadline)}
+        </p>
         {open ? (
           <JoinForm
             sheetToken={token}
@@ -50,7 +52,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
             passcodeRequired={Boolean(sheet.passcode)}
           />
         ) : (
-          <p className="mt-4 rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-500">
+          <p className="mt-4 rounded-xl bg-background p-4 text-center text-sm text-muted-foreground/80">
             {sheet.status === "closed" ? "本单已关闭" : "本次订购已截止"}
             {"，如需订购请联系供货方"}
           </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function CopyLinkButton({ token }: { token: string }) {
   const [copied, setCopied] = useState(false);
@@ -22,11 +23,8 @@ export default function CopyLinkButton({ token }: { token: string }) {
   };
 
   return (
-    <button
-      onClick={copy}
-      className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-100"
-    >
+    <Button variant="outline" size="xs" onClick={copy}>
       {copied ? "已复制 ✓" : "复制链接"}
-    </button>
+    </Button>
   );
 }

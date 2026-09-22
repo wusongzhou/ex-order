@@ -6,6 +6,7 @@ import OrderLinks from "@/components/OrderLinks";
 import RefreshButton from "@/components/RefreshButton";
 import SheetActions from "@/components/SheetActions";
 import StockCell from "@/components/StockCell";
+import { Button } from "@/components/ui/button";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { fmtDateTime, sheetStatus } from "@/lib/sheetStatus";
@@ -49,7 +50,7 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
     <main className="mx-auto max-w-4xl px-4 py-8">
       <AdminNav />
       <div className="mt-5">
-        <Link href="/admin" className="text-sm text-gray-500 hover:text-gray-900">
+        <Link href="/admin" className="text-sm text-muted-foreground/80 hover:text-foreground">
           ← 返回列表
         </Link>
       </div>
@@ -63,7 +64,9 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
           <span className={`rounded-full px-3 py-1 text-xs ${status.cls}`}>{status.label}</span>
         </span>
       </div>
-      <p className="mt-1 text-sm text-gray-500">截止时间：{fmtDateTime(sheet.deadline)}</p>
+      <p className="mt-1 text-sm text-muted-foreground/80">
+        截止时间：{fmtDateTime(sheet.deadline)}
+      </p>
 
       <SheetActions
         id={sheet.id}
@@ -87,7 +90,7 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
       <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium">客户与专属链接</h2>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground/80">
             已提交 {submittedCount} / {sheet.orders.length}
           </span>
         </div>
@@ -97,17 +100,18 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
       <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium">按商品汇总</h2>
-          <a
-            href={`/api/sheets/${sheet.id}/export`}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-xs text-white hover:bg-gray-700"
+          <Button
+            size="sm"
+            nativeButton={false}
+            render={<a href={`/api/sheets/${sheet.id}/export`} />}
           >
             导出 Excel
-          </a>
+          </Button>
         </div>
-        <div className="mt-3 overflow-x-auto rounded-xl border border-gray-200 bg-white">
+        <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+              <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
                 <th className="px-4 py-3">图片</th>
                 <th className="px-4 py-3">品种名</th>
                 <th className="px-4 py-3">花径</th>
@@ -128,7 +132,7 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
             </thead>
             <tbody>
               {totalRows.map(({ it, qty, remain, amount }) => (
-                <tr key={it.id} className="border-b border-gray-100 last:border-0">
+                <tr key={it.id} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-2">
                     {it.image1 ? (
                       <img
@@ -137,39 +141,39 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
                         className="h-10 w-10 rounded object-cover"
                       />
                     ) : (
-                      <span className="text-xs text-gray-300">—</span>
+                      <span className="text-xs text-muted-foreground/40">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3 font-medium">{it.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.size || "-"}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.flowerType || "-"}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.color || "-"}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.grade || "-"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{it.size || "-"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{it.flowerType || "-"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{it.color || "-"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{it.grade || "-"}</td>
                   <td className="px-4 py-3">
                     <StockCell itemId={it.id} stock={it.stock} orderedQty={qty} />
                   </td>
                   <td className="px-4 py-3">
                     {remain === null ? (
-                      <span className="text-gray-600">不限</span>
+                      <span className="text-muted-foreground">不限</span>
                     ) : (
                       <span
-                        className={`font-medium ${remain < 0 ? "text-red-600" : remain === 0 ? "text-amber-600" : "text-green-700"}`}
+                        className={`font-medium ${remain < 0 ? "text-destructive" : remain === 0 ? "text-warning" : "text-success"}`}
                       >
                         {remain}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">¥{it.price.toFixed(2)}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{qty}</td>
+                  <td className="px-4 py-3 text-muted-foreground">¥{it.price.toFixed(2)}</td>
+                  <td className="px-4 py-3 font-medium text-foreground">{qty}</td>
                   {customerCols.map((c) => (
-                    <td key={c.id} className="px-4 py-3 text-gray-600">
+                    <td key={c.id} className="px-4 py-3 text-muted-foreground">
                       {c.qtyOf(it.id) || "-"}
                     </td>
                   ))}
-                  <td className="px-4 py-3 text-gray-600">¥{amount.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-muted-foreground">¥{amount.toFixed(2)}</td>
                 </tr>
               ))}
-              <tr className="bg-gray-50 font-medium">
+              <tr className="bg-background font-medium">
                 <td className="px-4 py-3" colSpan={10 + customerCols.length}>
                   合计
                 </td>

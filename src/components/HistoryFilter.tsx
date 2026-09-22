@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import DateTimePicker from "@/components/ui/DateTimePicker";
 
 const STATUS_OPTIONS = [
@@ -45,16 +47,16 @@ export default function HistoryFilter({
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">
-      <input
+      <Input
         value={kw}
         onChange={(e) => setKw(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && apply()}
         placeholder="模糊搜索标题"
-        className="min-w-44 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        className="min-w-44 flex-1"
       />
       <DateTimePicker value={dt} onChange={setDt} placeholder="供货日期" className="w-40" />
       <Select value={st} onValueChange={(v) => setSt(String(v))}>
-        <SelectTrigger className="h-9 w-44">
+        <SelectTrigger className="w-44">
           <SelectValue placeholder="全部状态">
             {(v: string) => STATUS_OPTIONS.find((o) => o.value === v)?.label ?? "全部状态"}
           </SelectValue>
@@ -67,19 +69,17 @@ export default function HistoryFilter({
           ))}
         </SelectContent>
       </Select>
-      <button
-        onClick={apply}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-      >
+      <Button variant="outline" onClick={apply}>
         筛选
-      </button>
+      </Button>
       {filtered && (
-        <button
+        <Button
+          variant="ghost"
+          className="text-muted-foreground"
           onClick={() => router.push("/admin")}
-          className="rounded-lg px-4 py-2 text-sm text-gray-500 hover:text-gray-900"
         >
           重置
-        </button>
+        </Button>
       )}
     </div>
   );

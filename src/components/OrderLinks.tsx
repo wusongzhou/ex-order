@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import Modal from "@/components/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type OrderItem = { name: string; price: number; quantity: number; amount: number };
 
@@ -108,37 +110,33 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
   return (
     <div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <input
+        <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") add();
           }}
           placeholder="输入客户名称，如：小明花卉"
-          className="min-w-52 flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm"
+          className="min-w-52 flex-1"
         />
-        <button
-          onClick={add}
-          disabled={busy}
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
-        >
+        <Button onClick={add} disabled={busy}>
           {busy ? "生成中..." : "生成专属链接"}
-        </button>
+        </Button>
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      {actionErr && <p className="mt-2 text-sm text-red-600">{actionErr}</p>}
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {actionErr && <p className="mt-2 text-sm text-destructive">{actionErr}</p>}
 
       {loaded && orders.length === 0 && (
-        <p className="mt-3 rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500">
+        <p className="mt-3 rounded-xl border border-dashed border-input bg-card p-6 text-center text-sm text-muted-foreground/80">
           还没有客户。输入客户名称生成专属链接，复制后通过微信发送给对方填写。
         </p>
       )}
 
       {orders.length > 0 && (
-        <div className="mt-3 overflow-x-auto rounded-xl border border-gray-200 bg-white">
+        <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+              <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
                 <th className="px-4 py-3">客户</th>
                 <th className="px-4 py-3">状态</th>
                 <th className="px-4 py-3">订购内容</th>
@@ -149,18 +147,19 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
             </thead>
             <tbody>
               {orders.map((o) => (
-                <tr key={o.id} className="border-b border-gray-100 last:border-0">
+                <tr key={o.id} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-3">
-                    <button
+                    <Button
+                      variant="link"
+                      className="h-auto px-0 font-medium text-info"
                       onClick={() => setDetailTarget(o)}
                       title="查看订购详情"
-                      className="font-medium text-blue-700 hover:underline"
                     >
                       {o.customerName}
-                    </button>
+                    </Button>
                     {o.source === "self" && (
                       <span
-                        className="ml-1.5 rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600"
+                        className="ml-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs text-info"
                         title="客户通过群链接自助创建"
                       >
                         群自填
@@ -169,38 +168,43 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
                   </td>
                   <td className="px-4 py-3">
                     {o.submitted ? (
-                      <span className="text-green-700">已提交</span>
+                      <span className="text-success">已提交</span>
                     ) : (
-                      <span className="text-gray-400">未提交</span>
+                      <span className="text-muted-foreground/55">未提交</span>
                     )}
                   </td>
-                  <td className="max-w-[240px] truncate px-4 py-3 text-gray-600" title={o.summary}>
+                  <td
+                    className="max-w-[240px] truncate px-4 py-3 text-muted-foreground"
+                    title={o.summary}
+                  >
                     {o.summary || "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">¥{o.amount.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-muted-foreground">¥{o.amount.toFixed(2)}</td>
                   <td className="px-4 py-3">
                     <CopyLinkButton token={o.token} />
                   </td>
                   <td className="px-4 py-3">
-                    <button
+                    <Button
+                      variant="link"
+                      className="mr-2 h-auto px-0 text-xs text-muted-foreground"
                       onClick={() => {
                         setRenameTarget(o);
                         setRenameName(o.customerName);
                         setActionErr("");
                       }}
-                      className="mr-2 text-xs text-gray-600 hover:underline"
                     >
                       改名
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="link"
+                      className="h-auto px-0 text-xs text-destructive"
                       onClick={() => {
                         setDeleteTarget(o);
                         setActionErr("");
                       }}
-                      className="text-xs text-red-500 hover:underline"
                     >
                       删除
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -209,7 +213,7 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
         </div>
       )}
       {orders.length > 0 && (
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-muted-foreground/55">
           已提交 {orders.filter((o) => o.submitted).length} / {orders.length} ·
           每个客户只能看到和修改自己的数量
         </p>
@@ -222,32 +226,24 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
         onClose={() => setRenameTarget(null)}
         footer={
           <>
-            <button
-              onClick={() => setRenameTarget(null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
+            <Button variant="outline" onClick={() => setRenameTarget(null)}>
               取消
-            </button>
-            <button
-              onClick={doRename}
-              className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
-            >
-              保存
-            </button>
+            </Button>
+            <Button onClick={doRename}>保存</Button>
           </>
         }
       >
-        <input
+        <Input
           value={renameName}
           onChange={(e) => setRenameName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") doRename();
           }}
           autoFocus
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          className="w-full"
           placeholder="客户名称"
         />
-        <p className="mt-2 text-xs text-gray-400">改名不影响客户已填写的订单</p>
+        <p className="mt-2 text-xs text-muted-foreground/55">改名不影响客户已填写的订单</p>
       </Modal>
 
       {/* 删除确认弹窗 */}
@@ -257,18 +253,12 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
         onClose={() => setDeleteTarget(null)}
         footer={
           <>
-            <button
-              onClick={() => setDeleteTarget(null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               取消
-            </button>
-            <button
-              onClick={doDelete}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500"
-            >
+            </Button>
+            <Button variant="destructive" onClick={doDelete}>
               删除
-            </button>
+            </Button>
           </>
         }
       >
@@ -280,29 +270,26 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
         open={!!detailTarget}
         title={detailTarget ? `${detailTarget.customerName} 的订购详情` : ""}
         onClose={() => setDetailTarget(null)}
-        width="max-w-md"
+        width="sm:max-w-md"
         footer={
-          <button
-            onClick={() => setDetailTarget(null)}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-          >
+          <Button variant="outline" onClick={() => setDetailTarget(null)}>
             关闭
-          </button>
+          </Button>
         }
       >
         {detailTarget && (
           <div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground/55">
               {detailTarget.submitted
                 ? `已提交 · ${detailTarget.submittedAt ? new Date(detailTarget.submittedAt).toLocaleString("zh-CN", { hour12: false }) : ""}`
                 : "尚未提交"}
             </p>
             {detailTarget.items.length === 0 ? (
-              <p className="mt-3 text-sm text-gray-500">该客户还没有订购任何商品</p>
+              <p className="mt-3 text-sm text-muted-foreground/80">该客户还没有订购任何商品</p>
             ) : (
               <table className="mt-3 w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+                  <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
                     <th className="py-2">品种</th>
                     <th className="py-2 text-right">单价</th>
                     <th className="py-2 text-right">数量</th>
@@ -313,11 +300,13 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
                   {detailTarget.items
                     .filter((it) => it.quantity > 0)
                     .map((it) => (
-                      <tr key={it.name} className="border-b border-gray-100 last:border-0">
+                      <tr key={it.name} className="border-b border-border/60 last:border-0">
                         <td className="py-2 font-medium">{it.name}</td>
-                        <td className="py-2 text-right text-gray-600">¥{it.price.toFixed(2)}</td>
-                        <td className="py-2 text-right text-gray-600">×{it.quantity}</td>
-                        <td className="py-2 text-right text-gray-900">¥{it.amount.toFixed(2)}</td>
+                        <td className="py-2 text-right text-muted-foreground">
+                          ¥{it.price.toFixed(2)}
+                        </td>
+                        <td className="py-2 text-right text-muted-foreground">×{it.quantity}</td>
+                        <td className="py-2 text-right text-foreground">¥{it.amount.toFixed(2)}</td>
                       </tr>
                     ))}
                   <tr className="font-medium">
@@ -329,7 +318,9 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
                 </tbody>
               </table>
             )}
-            <p className="mt-3 text-xs text-gray-400">截止前客户仍可通过专属链接修改订购内容</p>
+            <p className="mt-3 text-xs text-muted-foreground/55">
+              截止前客户仍可通过专属链接修改订购内容
+            </p>
           </div>
         )}
       </Modal>

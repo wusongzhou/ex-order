@@ -64,18 +64,19 @@ export default function StockCell({
     >
       <PopoverTrigger
         render={
-          <button
+          <Button
+            variant="link"
+            className="h-auto px-0 font-medium text-foreground"
             title={`点击调整库存（当前 ${unlimited ? "不限" : stock}，已订 ${orderedQty}）`}
-            className="inline-flex items-center gap-1 font-medium text-gray-900 hover:underline"
           />
         }
       >
         {unlimited ? "不限" : stock}
-        <Pencil className="h-3 w-3 text-gray-400" aria-hidden="true" />
+        <Pencil className="h-3 w-3 text-muted-foreground/55" aria-hidden="true" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 gap-0 p-3">
-        <p className="text-sm font-medium text-gray-900">调整库存</p>
-        <p className="mt-0.5 text-xs text-gray-400">
+        <p className="text-sm font-medium text-foreground">调整库存</p>
+        <p className="mt-0.5 text-xs text-muted-foreground/55">
           {unlimited ? "当前不限，填写数字后转为限量" : `已订 ${orderedQty}，不能小于它`}
         </p>
         <Input
@@ -89,15 +90,16 @@ export default function StockCell({
           }}
           className="mt-2"
         />
-        {err && <p className="mt-1.5 text-xs text-red-600">{err}</p>}
+        {err && <p className="mt-1.5 text-xs text-destructive">{err}</p>}
         <div className="mt-3 flex items-center justify-between">
-          <button
+          <Button
+            variant="link"
+            className="h-auto px-0 text-xs text-destructive"
             onClick={() => setVal(String(orderedQty))}
             title={`库存设为已订购量（${orderedQty}），剩余归零`}
-            className="text-xs text-red-500 hover:underline"
           >
             售罄
-          </button>
+          </Button>
           <span className="flex gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
               取消

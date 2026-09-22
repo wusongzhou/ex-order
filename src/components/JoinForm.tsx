@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   sheetToken: string;
@@ -117,33 +119,36 @@ export default function JoinForm({
   };
 
   if (checking) {
-    return <p className="mt-6 text-center text-sm text-gray-400">正在进入您的订购单…</p>;
+    return <p className="mt-6 text-center text-sm text-muted-foreground/55">正在进入您的订购单…</p>;
   }
 
   if (joinedToken) {
     const url = `${window.location.origin}/order/${joinedToken}`;
     return (
       <div className="mt-4">
-        <p className="text-base font-medium text-gray-900">{name.trim()}，您的专属订购链接已生成</p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="text-base font-medium text-foreground">
+          {name.trim()}，您的专属订购链接已生成
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground/80">
           建议复制保存或收藏本页，下次可直接打开，不必再从群里找链接
         </p>
-        <p className="mt-3 rounded-xl bg-gray-50 px-3 py-2.5 text-sm break-all text-gray-600 select-all">
+        <p className="mt-3 rounded-xl bg-background px-3 py-2.5 text-sm break-all text-muted-foreground select-all">
           {url}
         </p>
         <div className="mt-4 flex gap-3">
-          <button
+          <Button
+            variant="outline"
+            className="h-12 flex-1 rounded-xl text-base font-medium"
             onClick={copyLink}
-            className="flex-1 rounded-xl border border-gray-300 py-3 text-base font-medium text-gray-700 active:bg-gray-100"
           >
             {copied ? "已复制 ✓" : "复制链接"}
-          </button>
-          <button
+          </Button>
+          <Button
+            className="h-12 flex-1 rounded-xl text-base font-medium"
             onClick={() => gotoOrder(joinedToken)}
-            className="flex-1 rounded-xl bg-gray-900 py-3 text-base font-medium text-white active:bg-gray-700"
           >
             进入订购
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -151,12 +156,12 @@ export default function JoinForm({
 
   return (
     <div className="mt-4">
-      <p className="text-base text-gray-600">
+      <p className="text-base text-muted-foreground">
         本期共 {itemCount} 个品种。输入您的姓名{passcodeRequired ? "和群内公布的口令" : ""}，
         开始填写订购数量
       </p>
       <div className="mt-4 space-y-3">
-        <input
+        <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
@@ -165,10 +170,10 @@ export default function JoinForm({
           autoFocus
           maxLength={30}
           placeholder="您的姓名或店名，如：小明花卉"
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base outline-none focus:border-gray-900"
+          className="h-12 w-full rounded-xl px-4 text-base md:text-base"
         />
         {passcodeRequired && (
-          <input
+          <Input
             value={passcode}
             onChange={(e) => setPasscode(e.target.value.replace(/\D/g, "").slice(0, 4))}
             onKeyDown={(e) => {
@@ -177,18 +182,18 @@ export default function JoinForm({
             inputMode="numeric"
             autoComplete="off"
             placeholder="4 位数字口令（见群内通知）"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base tracking-[0.5em] outline-none focus:border-gray-900"
+            className="h-12 w-full rounded-xl px-4 text-base tracking-[0.5em] md:text-base"
           />
         )}
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <Button
+          className="h-12 w-full rounded-xl text-base font-medium"
           onClick={submit}
           disabled={busy}
-          className="w-full rounded-xl bg-gray-900 py-3.5 text-base font-medium text-white active:bg-gray-700 disabled:opacity-50"
         >
           {busy ? "正在进入..." : "开始订购"}
-        </button>
-        <p className="text-xs text-gray-400">
+        </Button>
+        <p className="text-xs text-muted-foreground/55">
           截止时间 {new Date(deadline).toLocaleString("zh-CN", { hour12: false })}，截止前可反复修改
         </p>
       </div>

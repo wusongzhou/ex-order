@@ -21,7 +21,7 @@ export default function RefreshButton() {
   };
 
   return (
-    <span className="inline-flex items-center gap-2 text-xs text-gray-500">
+    <span className="inline-flex items-center gap-2 text-xs text-muted-foreground/80">
       <Button variant="outline" onClick={refresh} className="text-xs">
         <RefreshCw className={spinning ? "animate-spin" : ""} />
         刷新数据

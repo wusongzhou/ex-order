@@ -20,7 +20,7 @@ input[type="number"] {
   width: 6px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border);
   border-radius: 3px;
 }
 
@@ -40,6 +40,9 @@ input[type="number"] {
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -67,31 +70,40 @@ input[type="number"] {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * 语义 token（浅色主题）
+ * 值取自 Tailwind v4 默认 gray 色板，与历史上硬编码的 gray-* 完全一致，视觉零变化。
+ * 以后调整主题只改这一处；写 literal 而非 var(--color-gray-*)，
+ * 因为 Tailwind v4 只输出被用到的色板变量，未使用的引用会失效。
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --background: oklch(98.5% 0.002 247.839); /* gray-50 页面底色 */
+  --foreground: oklch(21% 0.034 264.665); /* gray-900 主文字 */
+  --card: #fff;
+  --card-foreground: oklch(21% 0.034 264.665);
+  --popover: #fff;
+  --popover-foreground: oklch(21% 0.034 264.665);
+  --primary: oklch(21% 0.034 264.665); /* 主按钮近黑 */
+  --primary-foreground: #fff;
+  --secondary: oklch(96.7% 0.003 264.542); /* gray-100 */
+  --secondary-foreground: oklch(37.3% 0.034 259.733); /* gray-700 */
+  --muted: oklch(96.7% 0.003 264.542); /* gray-100 次级底色 */
+  --muted-foreground: oklch(44.6% 0.03 256.802); /* gray-600 次级文字 */
+  --accent: oklch(92.8% 0.006 264.531); /* gray-200 悬停底色 */
+  --accent-foreground: oklch(21% 0.034 264.665);
+  --destructive: oklch(57.7% 0.245 27.325); /* red-600 */
+  --success: oklch(52.7% 0.154 150.069); /* green-700 */
+  --warning: oklch(55.5% 0.163 48.998); /* amber-700 */
+  --info: oklch(54.6% 0.245 262.881); /* blue-600 */
+  --border: oklch(92.8% 0.006 264.531); /* gray-200 */
+  --input: oklch(87.2% 0.01 258.338); /* gray-300 输入框描边 */
+  --ring: oklch(70.7% 0.022 261.325); /* gray-400 */
+  --radius: 0.625rem;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -143,7 +155,9 @@ input[type="number"] {
   body {
     @apply bg-background text-foreground;
   }
+  /* 不用 @apply font-sans：显式带上中文字体回退（Geist 只有拉丁字形），
+     注意 --font-sans 不能在这里再写 var(--font-sans) 形式的回退，会成环 */
   html {
-    @apply font-sans;
+    font-family: var(--font-sans), "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   }
 }

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DateTimePicker from "@/components/ui/DateTimePicker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Modal from "@/components/Modal";
 
 type ModalType = "close" | "reopen" | "delete" | null;
@@ -137,37 +139,30 @@ export default function SheetActions({
   return (
     <div className="mt-4 flex flex-wrap gap-2">
       {open ? (
-        <button
-          onClick={() => setModal("close")}
-          disabled={busy}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
-        >
+        <Button onClick={() => setModal("close")} disabled={busy}>
           关闭订购
-        </button>
+        </Button>
       ) : (
-        <button
-          onClick={() => setModal("reopen")}
-          disabled={busy}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
-        >
+        <Button onClick={() => setModal("reopen")} disabled={busy}>
           重新开放
-        </button>
+        </Button>
       )}
-      <button
+      <Button
+        variant="outline"
         onClick={openCopy}
         disabled={copying}
         title="复制全部商品到新供货单（库存清零，需重新填当日数量）"
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
       >
         {copying ? "复制中..." : "复制为新供货单"}
-      </button>
-      <button
+      </Button>
+      <Button
+        variant="outline"
+        className="text-destructive"
         onClick={() => setModal("delete")}
         disabled={busy}
-        className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
       >
         删除供货单
-      </button>
+      </Button>
 
       <Modal
         open={!!meta}
@@ -175,26 +170,21 @@ export default function SheetActions({
         onClose={() => setModal(null)}
         footer={
           <>
-            <button
-              onClick={() => setModal(null)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
+            <Button variant="outline" onClick={() => setModal(null)}>
               取消
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={meta?.danger ? "destructive" : "default"}
               onClick={doAction}
               disabled={busy}
-              className={`rounded-lg px-4 py-2 text-sm text-white disabled:opacity-50 ${
-                meta?.danger ? "bg-red-600 hover:bg-red-500" : "bg-gray-900 hover:bg-gray-700"
-              }`}
             >
               {busy ? "处理中..." : meta?.confirm}
-            </button>
+            </Button>
           </>
         }
       >
         <p>{meta?.text}</p>
-        {err && !copyModal && <p className="mt-2 text-sm text-red-600">{err}</p>}
+        {err && !copyModal && <p className="mt-2 text-sm text-destructive">{err}</p>}
       </Modal>
 
       {/* 复制供货单弹窗 */}
@@ -204,51 +194,43 @@ export default function SheetActions({
         onClose={() => !copying && setCopyModal(false)}
         footer={
           <>
-            <button
-              onClick={() => setCopyModal(false)}
-              disabled={copying}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
+            <Button variant="outline" onClick={() => setCopyModal(false)} disabled={copying}>
               取消
-            </button>
-            <button
-              onClick={doCopy}
-              disabled={copying}
-              className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700 disabled:opacity-50"
-            >
+            </Button>
+            <Button onClick={doCopy} disabled={copying}>
               {copying ? "复制中..." : "确认复制"}
-            </button>
+            </Button>
           </>
         }
       >
         <div className="space-y-3">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground/80">
             将复制全部商品（含图片与价格），库存清零；客户订单与链接不复制。
           </p>
           <label className="block text-sm">
-            <span className="text-gray-600">供货日期</span>
+            <span className="text-muted-foreground">供货日期</span>
             <div className="mt-1">
               <DateTimePicker value={copyDate} onChange={setCopyDate} />
             </div>
           </label>
           <label className="block text-sm">
-            <span className="text-gray-600">
-              标题 <span className="text-red-500">*</span>
+            <span className="text-muted-foreground">
+              标题 <span className="text-destructive">*</span>
             </span>
-            <input
+            <Input
               value={copyTitle}
               onChange={(e) => setCopyTitle(e.target.value)}
               placeholder="如：嵩明集货站"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="mt-1 w-full"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-gray-600">截止时间</span>
+            <span className="text-muted-foreground">截止时间</span>
             <div className="mt-1">
               <DateTimePicker value={copyDeadline} onChange={setCopyDeadline} withTime />
             </div>
           </label>
-          {err && <p className="text-sm text-red-600">{err}</p>}
+          {err && <p className="text-sm text-destructive">{err}</p>}
         </div>
       </Modal>
     </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type ItemView = {
   id: number;
@@ -48,20 +50,20 @@ function Stepper({
   onChange: (v: number) => void;
   disabled?: boolean;
 }) {
-  const btn =
-    "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-lg text-gray-700 active:bg-gray-100 disabled:opacity-40 disabled:active:bg-white";
   return (
     <div className="flex shrink-0 items-center gap-1.5">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="icon"
         disabled={disabled || value <= 0}
         onClick={() => onChange(value - 1)}
-        className={btn}
+        className="size-9 rounded-lg text-lg text-secondary-foreground"
         aria-label="减少"
       >
         −
-      </button>
-      <input
+      </Button>
+      <Input
         type="number"
         inputMode="numeric"
         min={0}
@@ -69,17 +71,19 @@ function Stepper({
         onChange={(e) =>
           onChange(Math.min(Math.max(Math.floor(Number(e.target.value) || 0), 0), 99999))
         }
-        className="h-9 w-12 rounded-lg border border-gray-300 text-center text-base font-medium outline-none focus:border-gray-900"
+        className="h-9 w-12 rounded-lg text-center text-base font-medium md:text-base"
       />
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="icon"
         disabled={disabled}
         onClick={() => onChange(value + 1)}
-        className={btn}
+        className="size-9 rounded-lg text-lg text-secondary-foreground"
         aria-label="增加"
       >
         ＋
-      </button>
+      </Button>
     </div>
   );
 }
@@ -181,20 +185,22 @@ export default function OrderForm({
   return (
     <main className="mx-auto max-w-lg px-4 pt-6 pb-36">
       {/* 头部信息卡 */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div className="rounded-2xl bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">
             {sheet.date} 供货单{sheet.title ? ` · ${sheet.title}` : ""}
           </h1>
           {savedAt && (
-            <span className="rounded-full bg-green-100 px-2.5 py-1 text-sm text-green-700">
+            <span className="rounded-full bg-success/15 px-2.5 py-1 text-sm text-success">
               已提交
             </span>
           )}
         </div>
-        <p className="mt-1.5 text-base text-gray-600">{customerName}，请填写您今日需要的订购数量</p>
+        <p className="mt-1.5 text-base text-muted-foreground">
+          {customerName}，请填写您今日需要的订购数量
+        </p>
         <p
-          className={`mt-2 text-sm ${remaining !== null && remaining <= 0 ? "text-amber-600" : "text-gray-400"}`}
+          className={`mt-2 text-sm ${remaining !== null && remaining <= 0 ? "text-warning" : "text-muted-foreground/55"}`}
         >
           截止时间 {deadline.toLocaleString("zh-CN", { hour12: false })}
           {remaining !== null && `（${fmtRemaining(remaining)}）`}
@@ -209,7 +215,7 @@ export default function OrderForm({
           return (
             <div
               key={it.id}
-              className={`rounded-xl bg-white p-3 shadow-sm ${soldOut ? "opacity-60" : ""}`}
+              className={`rounded-xl bg-card p-3 shadow-sm ${soldOut ? "opacity-60" : ""}`}
             >
               <div className="flex gap-3">
                 {(it.hasImage1 || it.hasImage2) && (
@@ -237,39 +243,39 @@ export default function OrderForm({
                     {[it.size, it.flowerType, it.color].filter(Boolean).map((a) => (
                       <span
                         key={a}
-                        className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500"
+                        className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground/80"
                       >
                         {a}
                       </span>
                     ))}
                     {it.grade && (
-                      <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground/80">
                         {it.grade}级
                       </span>
                     )}
                     {remain !== null &&
                       (remain <= 0 ? (
-                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-600">
+                        <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-medium text-destructive">
                           已订完
                         </span>
                       ) : (
-                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                        <span className="rounded bg-warning/10 px-1.5 py-0.5 text-xs font-medium text-warning">
                           库存{remain}
                         </span>
                       ))}
                   </div>
                   {/* 底排：左红价右步进器，各自不收缩不变形 */}
                   <div className="mt-auto flex items-end justify-between gap-2 pt-1">
-                    <span className="shrink-0 text-lg leading-none font-bold whitespace-nowrap text-red-600">
+                    <span className="shrink-0 text-lg leading-none font-bold whitespace-nowrap text-destructive">
                       <span className="text-sm">¥</span>
                       {it.price.toFixed(2)}
                     </span>
                     {canEdit && !soldOut ? (
                       <Stepper value={qtys[it.id] || 0} onChange={(v) => setQty(it.id, v)} />
                     ) : (
-                      <span className="shrink-0 text-base text-gray-500">
+                      <span className="shrink-0 text-base text-muted-foreground/80">
                         ×
-                        <span className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-foreground">
                           {qtys[it.id] || 0}
                         </span>
                       </span>
@@ -283,7 +289,7 @@ export default function OrderForm({
       </div>
 
       {!canEdit && (
-        <p className="mt-4 text-center text-sm text-gray-400">
+        <p className="mt-4 text-center text-sm text-muted-foreground/55">
           {sheet.status === "closed"
             ? "本单已关闭，如需调整请联系供货方"
             : "已截止，如需调整请联系供货方"}
@@ -292,38 +298,39 @@ export default function OrderForm({
 
       {/* 底部固定提交栏（含结果提示 + 刷新按钮在提交右侧） */}
       {canEdit && (
-        <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white/95 px-4 pt-3 pb-4 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 border-t border-border bg-card/95 px-4 pt-3 pb-4 backdrop-blur">
           <div className="mx-auto max-w-lg">
             {msg && (
               <p
-                className={`mb-2 text-center text-sm ${msgOk ? "text-green-700" : "text-red-600"}`}
+                className={`mb-2 text-center text-sm ${msgOk ? "text-success" : "text-destructive"}`}
               >
                 {msg}
               </p>
             )}
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm text-gray-600">
-                共 <span className="font-semibold text-gray-900">{totalCount}</span> 件
-                <span className="ml-2 text-lg font-semibold text-gray-900">
+              <div className="text-sm text-muted-foreground">
+                共 <span className="font-semibold text-foreground">{totalCount}</span> 件
+                <span className="ml-2 text-lg font-semibold text-foreground">
                   ¥{totalAmount.toFixed(2)}
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-xl px-3 text-sm text-muted-foreground"
                   onClick={manualRefresh}
                   disabled={refreshCooldown > 0}
-                  className="rounded-xl border border-gray-300 px-3 py-3 text-sm text-gray-600 active:bg-gray-100 disabled:opacity-50"
                   title="刷新最新库存"
                 >
                   ↻{refreshCooldown > 0 ? ` ${refreshCooldown}s` : " 刷新"}
-                </button>
-                <button
+                </Button>
+                <Button
+                  className="h-12 rounded-xl px-6 text-base font-medium"
                   onClick={save}
                   disabled={saving}
-                  className="rounded-xl bg-gray-900 px-6 py-3 text-base font-medium text-white active:bg-gray-700 disabled:opacity-50"
                 >
                   {saving ? "提交中..." : savedAt ? "更新订购" : "提交订购"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
