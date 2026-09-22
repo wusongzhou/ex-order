@@ -15,14 +15,15 @@ export default function AdminNav() {
   };
 
   const linkCls = (active: boolean) =>
-    active ? "font-medium text-foreground" : "text-muted-foreground hover:text-foreground";
+    active
+      ? "rounded-md bg-muted px-2.5 py-1 font-medium text-foreground"
+      : "rounded-md px-2.5 py-1 text-muted-foreground hover:bg-muted/50 hover:text-foreground";
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-x-5 gap-y-2 px-4 text-sm">
         <Link href="/admin" className="font-semibold text-foreground">
-          供货订购
-          <span className="text-muted-foreground"> · 商家后台</span>
+          管理后台
         </Link>
         <nav className="flex items-center gap-4">
           <Link href="/admin" className={linkCls(pathname === "/admin")}>
