@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DateTimePicker from "@/components/ui/DateTimePicker";
-import Toast from "@/components/Toast";
+import { toast } from "sonner";
 
 type ItemRow = {
   name: string;
@@ -29,7 +29,6 @@ export default function NewSheetPage() {
   const [date, setDate] = useState(localISODate());
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState(`${localISODate()}T20:00`);
-  const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   // 上传 Excel
@@ -80,19 +79,18 @@ export default function NewSheetPage() {
 
   const submit = async () => {
     if (count === 0) {
-      setError("请上传 Excel 或至少填写一个商品");
+      toast.error("请上传 Excel 或至少填写一个商品");
       return;
     }
     if (!date || !deadline) {
-      setError("请填写供货日期和截止时间");
+      toast.error("请填写供货日期和截止时间");
       return;
     }
     if (!title.trim()) {
-      setError("请填写标题");
+      toast.error("请填写标题");
       return;
     }
     setSaving(true);
-    setError("");
     const res = await fetch("/api/sheets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -108,7 +106,7 @@ export default function NewSheetPage() {
     if (res.ok) {
       router.push(`/admin/sheet/${data.id}`);
     } else {
-      setError(data.error || "创建失败");
+      toast.error(data.error || "创建失败");
     }
   };
 
@@ -163,8 +161,8 @@ export default function NewSheetPage() {
           <div>
             <h2 className="text-sm font-medium text-gray-700">上传今日商品表（Excel）</h2>
             <p className="mt-1 text-xs text-gray-400">
-              按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存。剩余数量自动生成 =
-              原始库存，可手动调整
+              按表头识别列：品种名 / 花径 / 花型 / 颜色 / 等级 / 价格 / 原始库存（作为本期库存，
+              可在清单中调整，留空表示不限）
             </p>
           </div>
           <a
@@ -224,7 +222,7 @@ export default function NewSheetPage() {
                   color: "",
                   grade: "",
                   price: 0,
-                  rawStock: 0,
+                  rawStock: 9999,
                   stock: 9999,
                 },
               ])
@@ -249,8 +247,7 @@ export default function NewSheetPage() {
                   <th className="px-2 py-2">花型</th>
                   <th className="px-2 py-2">颜色</th>
                   <th className="px-2 py-2">等级</th>
-                  <th className="px-2 py-2">原始库存</th>
-                  <th className="px-2 py-2">剩余数量</th>
+                  <th className="px-2 py-2">库存</th>
                   <th className="px-2 py-2">单价</th>
                   <th className="px-2 py-2"></th>
                 </tr>
@@ -289,26 +286,15 @@ export default function NewSheetPage() {
                       <input
                         type="number"
                         min={0}
-                        value={c.rawStock}
-                        onChange={(e) =>
-                          setRow(i, {
-                            rawStock: Math.max(0, Math.floor(Number(e.target.value) || 0)),
-                          })
-                        }
-                        className="w-16 rounded border border-gray-300 px-2 py-1.5 text-sm"
-                      />
-                    </td>
-                    <td className="px-1 py-1.5">
-                      <input
-                        type="number"
-                        min={0}
                         value={c.stock >= 9999 ? "" : c.stock}
                         placeholder="不限"
-                        onChange={(e) =>
-                          setRow(i, {
-                            stock: e.target.value === "" ? 9999 : Number(e.target.value),
-                          })
-                        }
+                        onChange={(e) => {
+                          const n =
+                            e.target.value === ""
+                              ? 9999
+                              : Math.max(0, Math.floor(Number(e.target.value) || 0));
+                          setRow(i, { stock: n, rawStock: n });
+                        }}
                         className="w-16 rounded border border-gray-300 px-2 py-1.5 text-sm"
                       />
                     </td>
@@ -337,9 +323,6 @@ export default function NewSheetPage() {
           )}
         </div>
       </section>
-
-      {/* 全局错误提示（顶部浮动，自动消失） */}
-      <Toast message={error} onDone={() => setError("")} />
 
       <button
         onClick={submit}

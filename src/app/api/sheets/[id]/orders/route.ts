@@ -42,6 +42,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         id: o.id,
         customerName: o.customerName,
         token: o.token,
+        source: o.source,
         submitted: o.submitted,
         submittedAt: o.submittedAt ? o.submittedAt.toISOString() : null,
         summary,

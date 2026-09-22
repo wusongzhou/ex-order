@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-/** 商家调整商品剩余库存。校验：新库存不能小于该商品已订购数量。 */
+/** 商家调整本期供货量：原始库存与可售上限同步更新（保持 原始 = 已订购 + 剩余 恒成立）。校验：不能小于已订购数量。 */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
@@ -36,6 +36,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "库存上限为 9998" }, { status: 400 });
   }
 
-  await prisma.sheetItem.update({ where: { id: itemId }, data: { stock } });
+  await prisma.sheetItem.update({ where: { id: itemId }, data: { stock, rawStock: stock } });
   return NextResponse.json({ ok: true });
 }

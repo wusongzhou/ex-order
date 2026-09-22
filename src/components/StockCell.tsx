@@ -2,26 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-/** 汇总表中的剩余数量单元格：点击可调整库存（不能小于已订购数量） */
+/** 汇总表中的「库存」单元格：点击弹出气泡确认框调整本期库存（不能小于已订购数量）。stock >= 9999 视为不限 */
 export default function StockCell({
   itemId,
   stock,
   orderedQty,
-  remain,
 }: {
   itemId: number;
   stock: number;
   orderedQty: number;
-  remain: number;
 }) {
   const router = useRouter();
-  const [editing, setEditing] = useState(false);
+  const [open, setOpen] = useState(false);
   const [val, setVal] = useState(String(stock));
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-
-  const cls = remain < 0 ? "text-red-600" : remain === 0 ? "text-amber-600" : "text-green-700";
+  const unlimited = stock >= 9999;
 
   const save = async () => {
     const n = Math.floor(Number(val));
@@ -30,7 +31,7 @@ export default function StockCell({
       return;
     }
     if (n === stock) {
-      setEditing(false);
+      setOpen(false);
       return;
     }
     setBusy(true);
@@ -42,7 +43,7 @@ export default function StockCell({
     });
     setBusy(false);
     if (r.ok) {
-      setEditing(false);
+      setOpen(false);
       router.refresh();
     } else {
       const d = await r.json().catch(() => ({}));
@@ -50,50 +51,63 @@ export default function StockCell({
     }
   };
 
-  if (!editing) {
-    return (
-      <button
-        onClick={() => {
-          setVal(String(stock));
-          setEditing(true);
-          setErr("");
-        }}
-        title={`点击调整库存（当前库存 ${stock}，已订 ${orderedQty}）`}
-        className={`font-medium decoration-dotted underline-offset-4 hover:underline ${cls}`}
-      >
-        {remain}
-      </button>
-    );
-  }
-
   return (
-    <span className="flex flex-col items-start gap-1">
-      <input
-        type="number"
-        min={orderedQty}
-        value={val}
-        autoFocus
-        onChange={(e) => setVal(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") save();
-          if (e.key === "Escape") setEditing(false);
-        }}
-        className="w-16 rounded border border-gray-900 px-2 py-1 text-sm"
-      />
-      <span className="flex gap-2 text-[11px] leading-none">
-        <button
-          onClick={save}
-          disabled={busy}
-          className="text-gray-900 hover:underline disabled:opacity-50"
-        >
-          保存
-        </button>
-        <button onClick={() => setEditing(false)} className="text-gray-400 hover:underline">
-          取消
-        </button>
-      </span>
-      <span className="text-[11px] text-gray-400">已订 {orderedQty}，不能小于它</span>
-      {err && <span className="text-[11px] text-red-600">{err}</span>}
-    </span>
+    <Popover
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) {
+          setVal(unlimited ? "" : String(stock));
+          setErr("");
+        }
+      }}
+    >
+      <PopoverTrigger
+        render={
+          <button
+            title={`点击调整库存（当前 ${unlimited ? "不限" : stock}，已订 ${orderedQty}）`}
+            className="inline-flex items-center gap-1 font-medium text-gray-900 hover:underline"
+          />
+        }
+      >
+        {unlimited ? "不限" : stock}
+        <Pencil className="h-3 w-3 text-gray-400" aria-hidden="true" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 gap-0 p-3">
+        <p className="text-sm font-medium text-gray-900">调整库存</p>
+        <p className="mt-0.5 text-xs text-gray-400">
+          {unlimited ? "当前不限，填写数字后转为限量" : `已订 ${orderedQty}，不能小于它`}
+        </p>
+        <Input
+          type="number"
+          min={0}
+          value={val}
+          autoFocus
+          onChange={(e) => setVal(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save();
+          }}
+          className="mt-2"
+        />
+        {err && <p className="mt-1.5 text-xs text-red-600">{err}</p>}
+        <div className="mt-3 flex items-center justify-between">
+          <button
+            onClick={() => setVal(String(orderedQty))}
+            title={`库存设为已订购量（${orderedQty}），剩余归零`}
+            className="text-xs text-red-500 hover:underline"
+          >
+            售罄
+          </button>
+          <span className="flex gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              取消
+            </Button>
+            <Button onClick={save} disabled={busy}>
+              {busy ? "保存中..." : "确定"}
+            </Button>
+          </span>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

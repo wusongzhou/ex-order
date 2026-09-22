@@ -238,7 +238,7 @@ export default function SheetActions({
             <input
               value={copyTitle}
               onChange={(e) => setCopyTitle(e.target.value)}
-              placeholder="如：龙元花卉"
+              placeholder="如：嵩明集货站"
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </label>

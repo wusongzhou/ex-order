@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+/**
+ * 通用弹窗：基于 shadcn Dialog（Base UI）实现，保持原有 props 接口不变。
+ * 由底层组件提供遮罩点击关闭、Esc 关闭、滚动锁定、焦点圈定与开合动画。
+ */
 export default function Modal({
   open,
   title,
@@ -17,25 +21,20 @@ export default function Modal({
   footer?: React.ReactNode;
   width?: string;
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className={`relative w-full ${width} rounded-2xl bg-white p-5 shadow-lg`}>
-        <h3 className="text-base font-medium text-gray-900">{title}</h3>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose();
+      }}
+    >
+      <DialogContent className={`${width} gap-0 rounded-2xl p-5 sm:max-w-none`}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
         <div className="mt-3 text-sm text-gray-600">{children}</div>
         {footer && <div className="mt-5 flex justify-end gap-2">{footer}</div>}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

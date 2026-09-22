@@ -11,14 +11,16 @@ datasource db {
 
 // 供货单（一期）
 model SupplySheet {
-  id        Int         @id @default(autoincrement())
-  date      String // 供货日期 YYYY-MM-DD
-  title     String      @default("")
-  deadline  DateTime
-  status    String      @default("open") // open | closed
-  createdAt DateTime    @default(now())
-  items     SheetItem[]
-  orders    Order[]
+  id          Int         @id @default(autoincrement())
+  date        String // 供货日期 YYYY-MM-DD
+  title       String      @default("")
+  deadline    DateTime
+  status      String      @default("open") // open | closed
+  publicToken String?     @unique // 群链接 token（null = 未开启群填单）
+  passcode    String? // 群链接口令（4 位数字，发链接时单独告知群成员）
+  createdAt   DateTime    @default(now())
+  items       SheetItem[]
+  orders      Order[]
 }
 
 // 当期商品项（字段与商家 Excel 模板对应）
@@ -47,6 +49,7 @@ model Order {
   sheet        SupplySheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   customerName String
   token        String      @unique
+  source       String      @default("manual") // manual = 商家手动生成专属链接 | self = 客户从群链接自助填写
   submitted    Boolean     @default(false)
   submittedAt  DateTime?
   items        OrderItem[]

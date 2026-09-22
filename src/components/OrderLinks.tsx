@@ -11,6 +11,7 @@ type OrderRow = {
   id: number;
   customerName: string;
   token: string;
+  source: string;
   submitted: boolean;
   submittedAt: string | null;
   summary: string;
@@ -113,7 +114,7 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
           onKeyDown={(e) => {
             if (e.key === "Enter") add();
           }}
-          placeholder="输入客户名称，如：张三饭店"
+          placeholder="输入客户名称，如：小明花卉"
           className="min-w-52 flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm"
         />
         <button
@@ -157,6 +158,14 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
                     >
                       {o.customerName}
                     </button>
+                    {o.source === "self" && (
+                      <span
+                        className="ml-1.5 rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600"
+                        title="客户通过群链接自助创建"
+                      >
+                        群自填
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {o.submitted ? (

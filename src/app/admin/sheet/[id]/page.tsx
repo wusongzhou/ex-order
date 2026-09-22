@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
+import GroupLinkCard from "@/components/GroupLinkCard";
 import OrderLinks from "@/components/OrderLinks";
 import RefreshButton from "@/components/RefreshButton";
 import SheetActions from "@/components/SheetActions";
@@ -75,6 +76,15 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
       />
 
       <section className="mt-8">
+        <h2 className="font-medium">群填单链接（可选）</h2>
+        <GroupLinkCard
+          sheetId={sheet.id}
+          publicToken={sheet.publicToken}
+          passcode={sheet.passcode}
+        />
+      </section>
+
+      <section className="mt-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium">客户与专属链接</h2>
           <span className="text-sm text-gray-500">
@@ -104,7 +114,7 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
                 <th className="px-4 py-3">花型</th>
                 <th className="px-4 py-3">颜色</th>
                 <th className="px-4 py-3">等级</th>
-                <th className="px-4 py-3">原始库存</th>
+                <th className="px-4 py-3">库存</th>
                 <th className="px-4 py-3">剩余数量</th>
                 <th className="px-4 py-3">单价</th>
                 <th className="px-4 py-3">订购总量</th>
@@ -135,12 +145,18 @@ export default async function SheetDetail({ params }: { params: Promise<{ id: st
                   <td className="px-4 py-3 text-gray-600">{it.flowerType || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{it.color || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{it.grade || "-"}</td>
-                  <td className="px-4 py-3 text-gray-600">{it.rawStock}</td>
+                  <td className="px-4 py-3">
+                    <StockCell itemId={it.id} stock={it.stock} orderedQty={qty} />
+                  </td>
                   <td className="px-4 py-3">
                     {remain === null ? (
                       <span className="text-gray-600">不限</span>
                     ) : (
-                      <StockCell itemId={it.id} stock={it.stock} orderedQty={qty} remain={remain} />
+                      <span
+                        className={`font-medium ${remain < 0 ? "text-red-600" : remain === 0 ? "text-amber-600" : "text-green-700"}`}
+                      >
+                        {remain}
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">¥{it.price.toFixed(2)}</td>

@@ -8,8 +8,8 @@ export type ParsedItem = {
   color: string; // 颜色
   grade: string; // 等级
   price: number; // 价格
-  rawStock: number; // 原始库存
-  stock: number; // 剩余数量（上传时自动 = 原始库存，可在清单中调整）
+  rawStock: number; // 原始库存（Excel 模板列，即本期库存）
+  stock: number; // 库存（上传时自动 = 原始库存）
   image1?: Buffer; // 品种图片1（Excel 嵌入图片）
   image2?: Buffer; // 品种图片2
 };
@@ -180,7 +180,7 @@ export function parseWorkbook(data: Buffer) {
     throw new Error("没有解析到任何商品（检查「品种名」和「价格」列是否有值）");
   }
 
-  // 表头上方的簿记行：识别供货日期（如"9月22"）与商家名（如"龙元花卉"）
+  // 表头上方的簿记行：识别供货日期（如"9月22"）与商家名（如"嵩明集货站"）
   let dateGuess: string | null = null;
   let titleGuess: string | null = null;
   for (let i = 0; i < headerRow && i < aoa.length; i++) {

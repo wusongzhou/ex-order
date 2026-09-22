@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /** 详情页手动刷新：router.refresh() 重新拉服务端数据，不整页白屏 */
 export default function RefreshButton() {
@@ -20,12 +22,10 @@ export default function RefreshButton() {
 
   return (
     <span className="inline-flex items-center gap-2 text-xs text-gray-500">
-      <button
-        onClick={refresh}
-        className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-gray-700 hover:bg-gray-50"
-      >
-        <span className={spinning ? "inline-block animate-spin" : "inline-block"}>↻</span> 刷新数据
-      </button>
+      <Button variant="outline" onClick={refresh} className="text-xs">
+        <RefreshCw className={spinning ? "animate-spin" : ""} />
+        刷新数据
+      </Button>
       {at && <span>更新于 {at}</span>}
     </span>
   );
