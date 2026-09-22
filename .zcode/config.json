@@ -1,0 +1,13 @@
+{
+  "mcp": {
+    "servers": {
+      "shadcn": {
+        "command": "node",
+        "args": [
+          "C:\\Users\\wuson\\WorkBuddy\\collection\\ex-order\\node_modules\\shadcn\\dist\\index.js",
+          "mcp"
+        ]
+      }
+    }
+  }
+}
