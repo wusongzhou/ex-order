@@ -40,6 +40,8 @@ model SheetItem {
   image2      Bytes? // 品种图片2
   sort        Int         @default(0)
   orderItems  OrderItem[]
+
+  @@index([sheetId])
 }
 
 // 订单（每客户每期一张，凭 token 免登录填写）
@@ -53,16 +55,20 @@ model Order {
   submitted    Boolean     @default(false)
   submittedAt  DateTime?
   items        OrderItem[]
+
+  @@unique([sheetId, customerName]) // 同名互斥的数据库级保证（并发下也不会出现重复客户）
+  @@index([sheetId])
 }
 
 // 订单明细
 model OrderItem {
-  id          Int        @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   orderId     Int
-  order       Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
   sheetItemId Int
-  sheetItem   SheetItem  @relation(fields: [sheetItemId], references: [id], onDelete: Cascade)
-  quantity    Int        @default(0)
+  sheetItem   SheetItem @relation(fields: [sheetItemId], references: [id], onDelete: Cascade)
+  quantity    Int       @default(0)
 
   @@unique([orderId, sheetItemId])
+  @@index([sheetItemId])
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 /**
@@ -76,13 +77,25 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const order = await prisma.order.create({
-    data: {
-      sheetId: sheet.id,
-      customerName: name,
-      token: crypto.randomBytes(16).toString("hex"),
-      source: "self",
-    },
-  });
+  const order = await prisma.order
+    .create({
+      data: {
+        sheetId: sheet.id,
+        customerName: name,
+        token: crypto.randomBytes(16).toString("hex"),
+        source: "self",
+      },
+    })
+    .catch((e) => {
+      // 并发兜底：同名唯一约束（sheetId+customerName）在检查后仍可能被并发请求抢先
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return null;
+      throw e;
+    });
+  if (!order) {
+    return NextResponse.json(
+      { error: `「${name}」已被使用，若这是您的名字请联系供货方` },
+      { status: 409 }
+    );
+  }
   return NextResponse.json({ token: order.token });
 }

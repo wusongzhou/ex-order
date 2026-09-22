@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { Prisma } from "@prisma/client";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { itemShortLabel } from "@/lib/itemLabel";
@@ -81,12 +82,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (exists) {
     return NextResponse.json({ error: `「${customerName}」已存在` }, { status: 400 });
   }
-  const order = await prisma.order.create({
-    data: {
-      sheetId,
-      customerName,
-      token: crypto.randomBytes(16).toString("hex"),
-    },
-  });
-  return NextResponse.json({ id: order.id, token: order.token });
+  try {
+    const order = await prisma.order.create({
+      data: {
+        sheetId,
+        customerName,
+        token: crypto.randomBytes(16).toString("hex"),
+      },
+    });
+    return NextResponse.json({ id: order.id, token: order.token });
+  } catch (e) {
+    // 并发兜底：同名唯一约束（sheetId+customerName）在检查后仍可能被并发请求抢先
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return NextResponse.json({ error: `「${customerName}」已存在` }, { status: 400 });
+    }
+    throw e;
+  }
 }

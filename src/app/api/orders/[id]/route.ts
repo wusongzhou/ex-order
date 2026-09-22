@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -13,7 +14,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!customerName) {
     return NextResponse.json({ error: "客户名称不能为空" }, { status: 400 });
   }
-  await prisma.order.update({ where: { id: Number(id) }, data: { customerName } });
+  try {
+    await prisma.order.update({ where: { id: Number(id) }, data: { customerName } });
+  } catch (e) {
+    // 同名互斥由数据库唯一约束（sheetId+customerName）保证，改名也不允许撞名
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return NextResponse.json({ error: `「${customerName}」已存在于本供货单` }, { status: 400 });
+    }
+    throw e;
+  }
   return NextResponse.json({ ok: true });
 }
 
