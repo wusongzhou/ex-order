@@ -52,7 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "请填写标题" }, { status: 400 });
   }
 
-  // 截止时间：传入则解析，否则今天 20:00（已过 20 点则顺延 23:59）
+  // 截止时间：传入则解析，否则默认当日 23:59（当日截止）
   let deadline: Date;
   if (typeof body.deadline === "string" && body.deadline.trim()) {
     const d = new Date(body.deadline.trim());
@@ -62,11 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     deadline = d;
   } else {
     deadline = new Date(now);
-    if (now.getHours() < 20) {
-      deadline.setHours(20, 0, 0, 0);
-    } else {
-      deadline.setHours(23, 59, 0, 0);
-    }
+    deadline.setHours(23, 59, 0, 0);
   }
 
   const sheet = await prisma.supplySheet.create({

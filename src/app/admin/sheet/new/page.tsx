@@ -49,7 +49,7 @@ export default function NewSheetPage() {
   const [items, setItems] = useState<ItemRow[]>([]);
   const [date, setDate] = useState(localISODate());
   const [title, setTitle] = useState("");
-  const [deadline, setDeadline] = useState(`${localISODate()}T20:00`);
+  const [deadline, setDeadline] = useState(`${localISODate()}T23:59`);
   const [saving, setSaving] = useState(false);
 
   // 上传 Excel

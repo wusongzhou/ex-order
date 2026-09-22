@@ -64,7 +64,7 @@ export default function SheetActions({
   const openCopy = () => {
     const d = new Date();
     const today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const time = d.getHours() < 20 ? "20:00" : "23:59";
+    const time = "23:59";
     setCopyDate(today);
     setCopyTitle(srcTitle);
     setCopyDeadline(`${today}T${time}`);
