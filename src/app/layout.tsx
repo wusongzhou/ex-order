@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: "供货订购",
@@ -15,7 +16,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning：next-themes 会在 html 上注入主题 class/样式
-    <html lang="zh-CN" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      className={cn("font-sans", geist.variable, geistMono.variable)}
+      suppressHydrationWarning
+    >
       <body className="bg-background text-foreground antialiased">
         {/* 应用为纯浅色：强制 light，避免系统深色模式下 sonner 等 组件跟随变深 */}
         <ThemeProvider

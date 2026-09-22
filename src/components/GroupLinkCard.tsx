@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Props = {
   sheetId: number;
@@ -30,6 +41,7 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
   const [err, setErr] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"regen" | "disable" | null>(null);
   // 完整 URL 的域名部分仅浏览器端可知，挂载后补齐（避免 SSR 水合不一致）
   const [origin, setOrigin] = useState("");
   useEffect(() => {
@@ -88,7 +100,7 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
   return (
     <div className="mt-3">
       <div className="flex flex-wrap gap-2">
-        <div className="flex h-9 min-w-52 flex-1 items-center rounded-lg border border-input px-3 text-sm text-muted-foreground select-all">
+        <div className="flex h-9 min-w-52 flex-1 items-center rounded-lg border border-input px-3 font-mono text-sm text-muted-foreground select-all">
           <span className="truncate">
             {origin}/join/{token}
           </span>
@@ -99,8 +111,10 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
       </div>
       <div className="mt-2 flex flex-wrap gap-2">
         <div className="flex h-9 min-w-52 flex-1 items-center gap-3 rounded-lg border border-input px-3">
-          <span className="text-sm text-muted-foreground/80">口令</span>
-          <span className="text-base font-bold tracking-[0.3em] text-foreground">{code}</span>
+          <span className="text-sm text-muted-foreground">口令</span>
+          <span className="font-mono text-base font-bold tracking-[0.3em] text-foreground">
+            {code}
+          </span>
         </div>
         <Button variant="outline" size="lg" onClick={doCopyCode}>
           {copiedCode ? "已复制 ✓" : "复制口令"}
@@ -111,27 +125,77 @@ export default function GroupLinkCard({ sheetId, publicToken, passcode }: Props)
         客户换手机或清缓存后重新输入姓名会被提示「已被使用」，可联系你从下方列表删除其旧订单。
       </p>
       <div className="mt-2 flex items-center gap-4">
-        <Button
-          variant="link"
-          className="h-auto px-0 text-xs text-muted-foreground"
-          onClick={() => {
-            if (confirm("重新生成后旧链接与旧口令立即失效，确定？")) call("PUT");
-          }}
-          disabled={busy}
+        <AlertDialog
+          open={confirmAction === "regen"}
+          onOpenChange={(o) => !o && setConfirmAction(null)}
         >
-          重新生成
-        </Button>
-        <Button
-          variant="link"
-          className="h-auto px-0 text-xs text-destructive"
-          onClick={() => {
-            if (confirm("停用后群里将无法再通过链接加入（已自助创建的订单保留），确定？"))
-              call("DELETE");
-          }}
-          disabled={busy}
+          <AlertDialogTrigger
+            render={
+              <Button
+                variant="link"
+                className="h-auto px-0 text-xs text-muted-foreground"
+                disabled={busy}
+                onClick={() => setConfirmAction("regen")}
+              />
+            }
+          >
+            重新生成
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>重新生成群链接？</AlertDialogTitle>
+              <AlertDialogDescription>旧链接与旧口令立即失效，确定继续？</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  setConfirmAction(null);
+                  call("PUT");
+                }}
+              >
+                重新生成
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog
+          open={confirmAction === "disable"}
+          onOpenChange={(o) => !o && setConfirmAction(null)}
         >
-          停用
-        </Button>
+          <AlertDialogTrigger
+            render={
+              <Button
+                variant="link"
+                className="h-auto px-0 text-xs text-destructive"
+                disabled={busy}
+                onClick={() => setConfirmAction("disable")}
+              />
+            }
+          >
+            停用
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>停用群填单链接？</AlertDialogTitle>
+              <AlertDialogDescription>
+                停用后群里将无法再通过链接加入（已自助创建的订单保留），确定？
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => {
+                  setConfirmAction(null);
+                  call("DELETE");
+                }}
+              >
+                停用
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         {err && <span className="text-xs text-destructive">{err}</span>}
       </div>
     </div>

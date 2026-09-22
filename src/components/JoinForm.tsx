@@ -136,17 +136,10 @@ export default function JoinForm({
           {url}
         </p>
         <div className="mt-4 flex gap-3">
-          <Button
-            variant="outline"
-            className="h-12 flex-1 rounded-xl text-base font-medium"
-            onClick={copyLink}
-          >
+          <Button variant="outline" size="xl" className="flex-1 font-medium" onClick={copyLink}>
             {copied ? "已复制 ✓" : "复制链接"}
           </Button>
-          <Button
-            className="h-12 flex-1 rounded-xl text-base font-medium"
-            onClick={() => gotoOrder(joinedToken)}
-          >
+          <Button size="xl" className="flex-1 font-medium" onClick={() => gotoOrder(joinedToken)}>
             进入订购
           </Button>
         </div>
@@ -182,19 +175,19 @@ export default function JoinForm({
             inputMode="numeric"
             autoComplete="off"
             placeholder="4 位数字口令（见群内通知）"
-            className="h-12 w-full rounded-xl px-4 text-base tracking-[0.5em] md:text-base"
+            className="h-12 w-full rounded-xl px-4 font-mono text-base tracking-[0.5em] md:text-base"
           />
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button
-          className="h-12 w-full rounded-xl text-base font-medium"
-          onClick={submit}
-          disabled={busy}
-        >
+        <Button size="xl" className="w-full font-medium" onClick={submit} disabled={busy}>
           {busy ? "正在进入..." : "开始订购"}
         </Button>
         <p className="text-xs text-muted-foreground/55">
-          截止时间 {new Date(deadline).toLocaleString("zh-CN", { hour12: false })}，截止前可反复修改
+          截止时间{" "}
+          <span className="font-mono tabular-nums">
+            {new Date(deadline).toLocaleString("zh-CN", { hour12: false })}
+          </span>
+          ，截止前可反复修改
         </p>
       </div>
     </div>

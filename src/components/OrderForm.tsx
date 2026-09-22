@@ -202,7 +202,10 @@ export default function OrderForm({
         <p
           className={`mt-2 text-sm ${remaining !== null && remaining <= 0 ? "text-warning" : "text-muted-foreground/55"}`}
         >
-          截止时间 {deadline.toLocaleString("zh-CN", { hour12: false })}
+          截止时间{" "}
+          <span className="font-mono tabular-nums">
+            {deadline.toLocaleString("zh-CN", { hour12: false })}
+          </span>
           {remaining !== null && `（${fmtRemaining(remaining)}）`}
         </p>
       </div>
@@ -310,25 +313,22 @@ export default function OrderForm({
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm text-muted-foreground">
                 共 <span className="font-semibold text-foreground">{totalCount}</span> 件
-                <span className="ml-2 text-lg font-semibold text-foreground">
+                <span className="ml-2 font-mono text-lg font-semibold text-foreground tabular-nums">
                   ¥{totalAmount.toFixed(2)}
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Button
                   variant="outline"
-                  className="h-12 rounded-xl px-3 text-sm text-muted-foreground"
+                  size="xl"
+                  className="px-3 text-sm text-muted-foreground"
                   onClick={manualRefresh}
                   disabled={refreshCooldown > 0}
                   title="刷新最新库存"
                 >
                   ↻{refreshCooldown > 0 ? ` ${refreshCooldown}s` : " 刷新"}
                 </Button>
-                <Button
-                  className="h-12 rounded-xl px-6 text-base font-medium"
-                  onClick={save}
-                  disabled={saving}
-                >
+                <Button size="xl" className="font-medium" onClick={save} disabled={saving}>
                   {saving ? "提交中..." : savedAt ? "更新订购" : "提交订购"}
                 </Button>
               </div>

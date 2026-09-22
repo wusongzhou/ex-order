@@ -4,8 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import Modal from "@/components/Modal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type OrderItem = { name: string; price: number; quantity: number; amount: number };
 
@@ -133,57 +142,60 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
       )}
 
       {orders.length > 0 && (
-        <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
-                <th className="px-4 py-3">客户</th>
-                <th className="px-4 py-3">状态</th>
-                <th className="px-4 py-3">订购内容</th>
-                <th className="px-4 py-3">金额</th>
-                <th className="px-4 py-3">链接</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-4 text-xs text-muted-foreground">客户</TableHead>
+                <TableHead className="px-4 text-xs text-muted-foreground">状态</TableHead>
+                <TableHead className="px-4 text-xs text-muted-foreground">订购内容</TableHead>
+                <TableHead className="px-4 text-xs text-muted-foreground">金额</TableHead>
+                <TableHead className="px-4 text-xs text-muted-foreground">链接</TableHead>
+                <TableHead className="px-4 text-xs text-muted-foreground" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {orders.map((o) => (
-                <tr key={o.id} className="border-b border-border/60 last:border-0">
-                  <td className="px-4 py-3">
+                <TableRow key={o.id}>
+                  <TableCell className="px-4 py-3">
                     <Button
                       variant="link"
-                      className="h-auto px-0 font-medium text-info"
+                      className="h-auto px-0 font-medium text-foreground"
                       onClick={() => setDetailTarget(o)}
                       title="查看订购详情"
                     >
                       {o.customerName}
                     </Button>
                     {o.source === "self" && (
-                      <span
-                        className="ml-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs text-info"
+                      <Badge
+                        variant="secondary"
+                        className="ml-1.5 align-[1px]"
                         title="客户通过群链接自助创建"
                       >
                         群自填
-                      </span>
+                      </Badge>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     {o.submitted ? (
                       <span className="text-success">已提交</span>
                     ) : (
                       <span className="text-muted-foreground/55">未提交</span>
                     )}
-                  </td>
-                  <td
-                    className="max-w-[240px] truncate px-4 py-3 text-muted-foreground"
+                  </TableCell>
+                  <TableCell
+                    className="max-w-60 truncate px-4 py-3 text-muted-foreground"
                     title={o.summary}
                   >
                     {o.summary || "-"}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">¥{o.amount.toFixed(2)}</td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3 font-mono text-muted-foreground tabular-nums">
+                    ¥{o.amount.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <CopyLinkButton token={o.token} />
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
                     <Button
                       variant="link"
                       className="mr-2 h-auto px-0 text-xs text-muted-foreground"
@@ -205,11 +217,11 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
                     >
                       删除
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
       {orders.length > 0 && (
@@ -287,36 +299,48 @@ export default function OrderLinks({ sheetId }: { sheetId: number }) {
             {detailTarget.items.length === 0 ? (
               <p className="mt-3 text-sm text-muted-foreground/80">该客户还没有订购任何商品</p>
             ) : (
-              <table className="mt-3 w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-xs text-muted-foreground/80">
-                    <th className="py-2">品种</th>
-                    <th className="py-2 text-right">单价</th>
-                    <th className="py-2 text-right">数量</th>
-                    <th className="py-2 text-right">小计</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="mt-3">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="py-2 text-xs text-muted-foreground">品种</TableHead>
+                    <TableHead className="py-2 text-right text-xs text-muted-foreground">
+                      单价
+                    </TableHead>
+                    <TableHead className="py-2 text-right text-xs text-muted-foreground">
+                      数量
+                    </TableHead>
+                    <TableHead className="py-2 text-right text-xs text-muted-foreground">
+                      小计
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {detailTarget.items
                     .filter((it) => it.quantity > 0)
                     .map((it) => (
-                      <tr key={it.name} className="border-b border-border/60 last:border-0">
-                        <td className="py-2 font-medium">{it.name}</td>
-                        <td className="py-2 text-right text-muted-foreground">
+                      <TableRow key={it.name}>
+                        <TableCell className="py-2 font-medium">{it.name}</TableCell>
+                        <TableCell className="py-2 text-right font-mono text-muted-foreground tabular-nums">
                           ¥{it.price.toFixed(2)}
-                        </td>
-                        <td className="py-2 text-right text-muted-foreground">×{it.quantity}</td>
-                        <td className="py-2 text-right text-foreground">¥{it.amount.toFixed(2)}</td>
-                      </tr>
+                        </TableCell>
+                        <TableCell className="py-2 text-right font-mono text-muted-foreground tabular-nums">
+                          ×{it.quantity}
+                        </TableCell>
+                        <TableCell className="py-2 text-right font-mono text-foreground tabular-nums">
+                          ¥{it.amount.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  <tr className="font-medium">
-                    <td className="py-2" colSpan={3}>
+                  <TableRow className="border-b-0 font-medium">
+                    <TableCell className="py-2" colSpan={3}>
                       合计
-                    </td>
-                    <td className="py-2 text-right">¥{detailTarget.amount.toFixed(2)}</td>
-                  </tr>
-                </tbody>
-              </table>
+                    </TableCell>
+                    <TableCell className="py-2 text-right font-mono tabular-nums">
+                      ¥{detailTarget.amount.toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             )}
             <p className="mt-3 text-xs text-muted-foreground/55">
               截止前客户仍可通过专属链接修改订购内容

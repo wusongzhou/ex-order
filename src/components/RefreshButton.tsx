@@ -26,7 +26,7 @@ export default function RefreshButton() {
         <RefreshCw className={spinning ? "animate-spin" : ""} />
         刷新数据
       </Button>
-      {at && <span>更新于 {at}</span>}
+      {at && <span className="font-mono tabular-nums">更新于 {at}</span>}
     </span>
   );
 }

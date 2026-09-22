@@ -1,7 +1,13 @@
 "use client";
 
 import { cn } from "cn";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 /**
  * 通用弹窗：基于 shadcn Dialog（Base UI）实现，保持原有 props 接口不变。
@@ -30,12 +36,12 @@ export default function Modal({
         if (!o) onClose();
       }}
     >
-      <DialogContent className={cn("gap-0 rounded-2xl p-5", width)}>
+      <DialogContent className={cn(width)}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="mt-3 text-sm text-muted-foreground">{children}</div>
-        {footer && <div className="mt-5 flex justify-end gap-2">{footer}</div>}
+        <div className="text-sm text-muted-foreground">{children}</div>
+        {footer && <DialogFooter>{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );
